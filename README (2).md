@@ -84,6 +84,9 @@ For a production deployment, replace the `DataStore` with **Firebase/Firestore**
 - Real-time updates
 - Multi-user support
 
+## Developed by
+Vinay Mutekar
+
 ## License
 
 MIT License — see [LICENSE](./LICENSE) for details.
