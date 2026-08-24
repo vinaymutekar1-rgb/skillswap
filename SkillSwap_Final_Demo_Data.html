@@ -1,0 +1,2796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSwap - Campus Skill Exchange</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ===== GLOBAL CSS RESET ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+
+        button, input, select, textarea, label {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        button {
+            border: none;
+            cursor: pointer;
+            font-size: inherit;
+        }
+
+        input, select, textarea {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+        /* ===== COLOR SYSTEM ===== */
+        :root {
+            --bg-primary: #070a14;
+            --bg-secondary: #0d1220;
+            --bg-card: #12182a;
+            --bg-elevated: #171d31;
+            --border: rgba(255, 255, 255, 0.08);
+            --accent-primary: #8b6cff;
+            --accent-secondary: #56d9ff;
+            --accent-pink: #ff79be;
+            --success: #5be0af;
+            --warning: #f0c85a;
+            --danger: #ff5757;
+            --text-primary: #f5f7fb;
+            --text-secondary: #b8c0d4;
+            --text-muted: #8e98ac;
+
+            /* Neon Accents */
+            --neon-violet: #8B5CFF;
+            --neon-electric-purple: #A855F7;
+            --neon-cyan: #22D3EE;
+            --neon-electric-blue: #3B82F6;
+            --neon-pink: #FF4FD8;
+            --neon-mint: #36E0A0;
+            --neon-warm: #FFD166;
+
+            /* Neon Glows */
+            --glow-violet: 0 0 18px rgba(139, 92, 255, 0.22);
+            --glow-cyan: 0 0 18px rgba(34, 211, 238, 0.18);
+            --glow-pink: 0 0 18px rgba(255, 79, 216, 0.18);
+            --glow-mint: 0 0 16px rgba(54, 224, 160, 0.16);
+        }
+
+        /* ===== BACKGROUND ===== */
+        body {
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #0a0d1a 50%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, sans-serif;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(139, 92, 255, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(34, 211, 238, 0.10) 0%, transparent 50%),
+                radial-gradient(ellipse at 90% 20%, rgba(255, 79, 216, 0.06) 0%, transparent 45%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ===== LAYOUT ===== */
+        .app-container {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            grid-template-rows: 60px 1fr;
+            height: 100vh;
+            gap: 0;
+        }
+
+        .sidebar {
+            grid-column: 1;
+            grid-row: 1 / -1;
+            background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 20px 12px;
+            position: relative;
+            z-index: 50;
+        }
+
+        .main-content {
+            grid-column: 2;
+            grid-row: 1 / -1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--bg-primary);
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            grid-column: 2;
+            grid-row: 1;
+            background: linear-gradient(90deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 40;
+        }
+
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== TYPOGRAPHY ===== */
+        h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: -1px;
+        }
+
+        h2 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .text-secondary {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        .text-muted {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        /* ===== LOGO ===== */
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .logo:hover {
+            background: var(--bg-elevated);
+        }
+
+        .logo-mark {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 16px;
+            color: white;
+            box-shadow: 0 4px 16px rgba(139, 108, 255, 0.3);
+        }
+
+        .logo-text {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        /* ===== NAVIGATION ===== */
+        .nav-section {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-section:last-child {
+            border-bottom: none;
+            margin-top: auto;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding: 12px 8px;
+            letter-spacing: 0.8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(139, 92, 255, 0.15), rgba(34, 211, 238, 0.08));
+            color: #A855F7;
+            border-color: #8B5CFF;
+            box-shadow: inset 0 0 12px rgba(139, 92, 255, 0.12), var(--glow-violet);
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 3px;
+            height: 20px;
+            background: linear-gradient(180deg, #8B5CFF, #A855F7);
+            border-radius: 3px;
+            transform: translateY(-50%);
+            box-shadow: 0 0 10px #8B5CFF;
+        }
+
+        .nav-icon {
+            width: 18px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        /* ===== BUTTONS ===== */
+        button {
+            font-weight: 600;
+            transition: all 0.2s;
+            border-radius: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7C5CFF, #A855F7);
+            color: white;
+            padding: 12px 24px;
+            font-size: 14px;
+            box-shadow: 0 4px 16px rgba(139, 92, 255, 0.35), var(--glow-violet);
+            border: 1px solid rgba(139, 92, 255, 0.6);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(139, 92, 255, 0.45), var(--glow-violet);
+            filter: brightness(1.1);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, var(--bg-elevated), var(--bg-card));
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, rgba(91, 224, 175, 0.2), rgba(91, 224, 175, 0.1));
+            color: var(--success);
+            border: 1px solid rgba(91, 224, 175, 0.3);
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, rgba(91, 224, 175, 0.3), rgba(91, 224, 175, 0.2));
+            border-color: var(--success);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, rgba(255, 87, 87, 0.2), rgba(255, 87, 87, 0.1));
+            color: var(--danger);
+            border: 1px solid rgba(255, 87, 87, 0.3);
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, rgba(255, 87, 87, 0.3), rgba(255, 87, 87, 0.2));
+            border-color: var(--danger);
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: #8B5CFF;
+            box-shadow: 0 8px 24px rgba(139, 92, 255, 0.2), var(--glow-violet);
+        }
+
+        .card-compact {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+        }
+
+        .card-compact:hover {
+            border-color: var(--accent-primary);
+            background: var(--bg-elevated);
+        }
+
+        /* ===== GRIDS ===== */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        /* ===== STAT CARDS ===== */
+        .stat-card {
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-elevated) 100%);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: #8B5CFF;
+            box-shadow: 0 12px 32px rgba(139, 92, 255, 0.25), var(--glow-violet);
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #8B5CFF, #22D3EE);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 12px 0;
+            text-shadow: 0 0 20px rgba(139, 92, 255, 0.2);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.8px;
+        }
+
+        .stat-context {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        /* ===== FORMS ===== */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        input:hover, select:hover, textarea:hover {
+            border-color: var(--accent-primary);
+            background: var(--bg-secondary);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #22D3EE;
+            background: var(--bg-elevated);
+            box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.1), var(--glow-cyan);
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238b6cff' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+            cursor: pointer;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: 'Inter', monospace;
+        }
+
+        /* ===== BADGES ===== */
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 6px;
+            margin-bottom: 6px;
+        }
+
+        .badge-skill {
+            background: rgba(139, 108, 255, 0.2);
+            color: var(--accent-primary);
+            border: 1px solid rgba(139, 108, 255, 0.3);
+        }
+
+        .badge-success {
+            background: rgba(91, 224, 175, 0.2);
+            color: var(--success);
+            border: 1px solid rgba(91, 224, 175, 0.3);
+        }
+
+        .badge-warning {
+            background: rgba(240, 200, 90, 0.2);
+            color: var(--warning);
+            border: 1px solid rgba(240, 200, 90, 0.3);
+        }
+
+        .badge-level {
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        /* ===== SKILL TAGS ===== */
+        .skill-tag {
+            display: inline-block;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            margin: 4px 4px 4px 0;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .skill-tag:hover {
+            background: linear-gradient(135deg, #8B5CFF, #A855F7);
+            color: white;
+            border-color: #22D3EE;
+            box-shadow: 0 4px 16px rgba(139, 92, 255, 0.4), var(--glow-violet);
+        }
+
+        .skill-tag.selected {
+            background: linear-gradient(135deg, #8B5CFF, #A855F7);
+            color: white;
+            border-color: #22D3EE;
+            box-shadow: 0 4px 16px rgba(139, 92, 255, 0.4), var(--glow-violet);
+        }
+
+        /* ===== MODALS ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+            border: 1px solid rgba(139, 92, 255, 0.3);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), var(--glow-violet);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(40px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 24px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        /* ===== TABS ===== */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            gap: 0;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            padding: 12px 16px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .tab-button:hover {
+            color: var(--text-primary);
+        }
+
+        .tab-button.active {
+            color: #A855F7;
+            border-bottom-color: #8B5CFF;
+            box-shadow: 0 1px 0 0 #8B5CFF inset;
+            text-shadow: 0 0 8px rgba(139, 92, 255, 0.15);
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* ===== TABLES ===== */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .table th {
+            background: var(--bg-elevated);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+
+        .table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .table tr:hover {
+            background: var(--bg-elevated);
+        }
+
+        /* ===== PROGRESS ===== */
+        .progress {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-elevated);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 8px 0;
+            border: 1px solid var(--border);
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #8B5CFF, #22D3EE);
+            transition: width 0.4s ease;
+            border-radius: 4px;
+            box-shadow: 0 0 12px rgba(139, 92, 255, 0.3), inset 0 0 6px rgba(34, 211, 238, 0.2);
+        }
+
+        /* ===== STAR RATING ===== */
+        .star-rating {
+            display: flex;
+            gap: 6px;
+            font-size: 22px;
+        }
+
+        .star {
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .star:hover, .star.filled {
+            color: var(--warning);
+        }
+
+        /* ===== TOASTS ===== */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+        }
+
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-left: 3px solid #8B5CFF;
+            padding: 14px 16px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            min-width: 320px;
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), var(--glow-violet);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .toast.success {
+            border-left-color: #36E0A0;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), var(--glow-mint);
+        }
+
+        .toast.error {
+            border-left-color: #FF4FD8;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), var(--glow-pink);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* ===== LOGIN ===== */
+        .login-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #0a0d1a 50%, var(--bg-secondary) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .login-card {
+            background: linear-gradient(135deg, rgba(13, 18, 32, 0.96) 0%, rgba(18, 24, 42, 0.96) 100%);
+            border: 1px solid rgba(139, 92, 255, 0.28);
+            border-radius: 18px;
+            padding: 28px;
+            max-width: 760px;
+            width: min(92%, 760px);
+            max-height: 86vh;
+            overflow: hidden;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55), 0 0 28px rgba(139, 92, 255, 0.10);
+            position: relative;
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            top: -170px;
+            right: -120px;
+            border-radius: 50%;
+            background: rgba(34, 211, 238, 0.10);
+            filter: blur(80px);
+            pointer-events: none;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 22px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-logo {
+            font-size: 32px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .login-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .login-subtitle {
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        .login-prompt {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            font-size: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .student-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            max-height: 52vh;
+            overflow-y: auto;
+            padding: 2px 4px 4px 2px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .student-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .student-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .student-list::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--neon-violet), var(--neon-cyan));
+            border-radius: 20px;
+        }
+
+        .student-button {
+            padding: 11px 13px;
+            min-height: 64px;
+            text-align: left;
+            background: linear-gradient(135deg, rgba(23, 29, 49, 0.92), rgba(18, 24, 42, 0.92));
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .student-button:hover {
+            background: linear-gradient(135deg, rgba(139, 108, 255, 0.2), rgba(86, 217, 255, 0.1));
+            border-color: var(--accent-primary);
+            transform: translateX(4px);
+        }
+
+        .student-name {
+            font-weight: 650;
+            font-size: 13px;
+            margin-bottom: 3px;
+            color: var(--text-primary);
+        }
+
+        .student-meta {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+
+        /* ===== SKILLSWAP BRAND LOGO ===== */
+        /* ===== LOGO / BACKGROUND COLOR MATCH ===== */
+        .brand-logo-img {
+            display:block;
+            width:155px;
+            max-width:44%;
+            height:auto;
+            margin:0 auto 8px;
+            border-radius:50%;
+            mix-blend-mode:screen;
+            filter:saturate(1.06) brightness(.94) contrast(1.03);
+            box-shadow:0 0 24px rgba(139,92,255,.10), 0 0 36px rgba(255,79,216,.06);
+        }
+        .sidebar-brand-img {
+            display:block;
+            width:108px;
+            max-width:78%;
+            height:auto;
+            margin:0 auto 10px;
+            border-radius:50%;
+            mix-blend-mode:screen;
+            filter:saturate(1.04) brightness(.92) contrast(1.03);
+            box-shadow:0 0 18px rgba(139,92,255,.08);
+        }
+        .sidebar .logo { padding:2px 4px 8px; background:transparent; }
+        .sidebar .logo:hover { background:transparent; }
+        .login-card { position:relative; overflow:hidden; background:linear-gradient(145deg, rgba(13,18,32,.96), rgba(18,24,42,.94)); }
+        .sidebar .logo { padding:4px 4px 10px; background:transparent; }
+        .sidebar .logo:hover { background:transparent; }
+        .login-header .login-logo { display:none; }
+        .login-card { position:relative; overflow:hidden; }
+        .login-card::after {
+            content:'';
+            position:absolute;
+            width:240px;height:240px;right:-95px;bottom:-105px;
+            background-image:url("data:image/webp;base64,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");
+            background-size:contain;background-repeat:no-repeat;opacity:.035;
+            pointer-events:none;
+        }
+        .login-card > * { position:relative; z-index:1; }
+        @media (max-width:768px){.brand-logo-img{width:120px;max-width:38%}.sidebar-brand-img{width:82px;max-width:65%}}
+
+        /* ===== UTILITIES ===== */
+        .hidden {
+            display: none !important;
+        }
+
+        .view-section {
+            display: none;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .flex-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gap-8 {
+            gap: 8px;
+        }
+
+        .gap-16 {
+            gap: 16px;
+        }
+
+        .mb-16 {
+            margin-bottom: 16px;
+        }
+
+        .mb-24 {
+            margin-bottom: 24px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto 1fr;
+            }
+
+            .sidebar {
+                grid-column: 1;
+                grid-row: 2;
+                height: auto;
+                flex-direction: row;
+                overflow-x: auto;
+                overflow-y: hidden;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding: 12px;
+            }
+
+            .logo {
+                display: none;
+            }
+
+            .nav-section {
+                display: flex;
+                border: none;
+                margin: 0;
+                padding: 0;
+                gap: 8px;
+            }
+
+            .nav-label {
+                display: none;
+            }
+
+            .nav-item {
+                white-space: nowrap;
+                margin: 0;
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .main-content {
+                grid-column: 1;
+                grid-row: 1;
+            }
+
+            .content-area {
+                grid-row: 3;
+                padding: 24px 16px;
+            }
+
+            .header {
+                grid-column: 1;
+            }
+
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            .modal {
+                width: 95%;
+            }
+
+            .login-card {
+                padding: 22px;
+                width: min(94%, 560px);
+                max-height: 88vh;
+            }
+
+            .student-list {
+                grid-template-columns: 1fr;
+                max-height: 56vh;
+            }
+        }
+    </style>
+    <link rel="icon" type="image/webp" href="data:image/webp;base64,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">
+</head>
+<body>
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <img class="brand-logo-img" src="data:image/webp;base64,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" alt="SkillSwap logo">
+                <h1 class="login-title" style="display:none">SkillSwap</h1>
+                <p class="login-subtitle">College Skill Exchange Platform</p>
+            </div>
+            <p class="login-prompt">
+                Select your student profile to continue
+            </p>
+            <div class="student-list" id="studentList"></div>
+        </div>
+    </div>
+
+    <!-- APP CONTAINER -->
+    <div id="appContainer" class="app-container hidden">
+        <!-- SIDEBAR -->
+        <div class="sidebar" id="sidebar">
+            <div class="logo">
+                <img class="sidebar-brand-img" src="data:image/webp;base64,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" alt="SkillSwap Campus logo">
+                <span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;">SkillSwap Campus</span>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-item active" onclick="app.navigate('dashboard')">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" onclick="app.navigate('board')">
+                    <span class="nav-icon">🎓</span>
+                    <span>Board</span>
+                </div>
+                <div class="nav-item" onclick="app.navigate('matches')">
+                    <span class="nav-icon">✨</span>
+                    <span>Matches</span>
+                </div>
+                <div class="nav-item" onclick="app.navigate('requests')">
+                    <span class="nav-icon">📬</span>
+                    <span>Requests</span>
+                </div>
+                <div class="nav-item" onclick="app.navigate('messages')">
+                    <span class="nav-icon">💬</span>
+                    <span>Messages</span>
+                </div>
+                <div class="nav-item" onclick="app.navigate('sessions')">
+                    <span class="nav-icon">📅</span>
+                    <span>Sessions</span>
+                </div>
+                <div class="nav-item" onclick="app.navigate('credits')">
+                    <span class="nav-icon">💎</span>
+                    <span>Credits</span>
+                </div>
+                <div class="nav-item" onclick="app.navigate('progress')">
+                    <span class="nav-icon">📈</span>
+                    <span>Progress</span>
+                </div>
+                <div class="nav-item" onclick="app.navigate('leaderboard')">
+                    <span class="nav-icon">🏆</span>
+                    <span>Leaderboard</span>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-item" onclick="app.navigate('profile')">
+                    <span class="nav-icon">👤</span>
+                    <span>Profile</span>
+                </div>
+                <div class="nav-item" onclick="app.navigate('admin')">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Admin</span>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-item" onclick="app.switchStudent()">
+                    <span class="nav-icon">🔄</span>
+                    <span>Switch</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <!-- HEADER -->
+            <div class="header">
+                <h3 class="header-title" id="viewTitle">Dashboard</h3>
+                <div class="flex-between gap-16">
+                    <button class="btn-secondary btn-sm" onclick="app.navigate('notifications')">
+                        🔔 Notifications
+                    </button>
+                    <div class="flex-center gap-16">
+                        <div class="flex-center gap-8">
+                            <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; color: white;" id="userAvatar">A</div>
+                            <div>
+                                <div style="font-size: 13px; font-weight: 600;" id="userName">Arjun</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">Student</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTENT AREA -->
+            <div class="content-area" id="contentArea">
+                <!-- DASHBOARD -->
+                <div id="dashboard" class="view-section active">
+                    <h1>Good evening, <span id="dashboardName" style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Arjun</span>.</h1>
+                    <p class="text-secondary mb-24">Your next skill is already on campus</p>
+
+                    <div style="display: flex; gap: 12px; margin-bottom: 32px;">
+                        <button class="btn-primary" onclick="app.navigate('matches')">✨ Find a Match</button>
+                        <button class="btn-secondary" onclick="app.navigate('profile'); setTimeout(() => app.openModal('editProfileModal'), 0)">+ Post a Skill</button>
+                    </div>
+
+                    <h2 style="margin-top: 32px;">Learning Overview</h2>
+                    <div class="grid-4" id="statsGrid">
+                        <div class="stat-card">
+                            <div class="stat-label">Learning Credits</div>
+                            <div class="stat-value" id="statCredits">0</div>
+                            <div class="stat-context">Earned from peer exchanges</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Active Swaps</div>
+                            <div class="stat-value" id="statSwaps">0</div>
+                            <div class="stat-context">Active peer exchanges</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Upcoming Sessions</div>
+                            <div class="stat-value" id="statSessions">0</div>
+                            <div class="stat-context">Scheduled on campus</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Your Rating</div>
+                            <div class="stat-value" id="statRating">--</div>
+                            <div class="stat-context">From reviews</div>
+                        </div>
+                    </div>
+
+                    <h2 style="margin-top: 32px;">Recommended Matches</h2>
+                    <div id="dashboardMatches"></div>
+
+                    <h2 style="margin-top: 32px;">Upcoming Sessions</h2>
+                    <div id="dashboardSessions"></div>
+                </div>
+
+                <!-- BOARD -->
+                <div id="board" class="view-section">
+                    <h1>Find your learning partner</h1>
+                    <p class="text-secondary mb-24">Browse students and their skills</p>
+
+                    <div class="card mb-24">
+                        <input type="text" placeholder="Search people, skills or departments..." id="boardSearch" onkeyup="app.filterBoard()" style="margin-bottom: 12px;">
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <select id="departmentFilter" onchange="app.filterBoard()" style="flex: 1; max-width: 200px;">
+                                <option value="">All Departments</option>
+                                <option value="CS">Computer Science</option>
+                                <option value="Business">Business</option>
+                                <option value="Design">Design</option>
+                                <option value="Engineering">Engineering</option>
+                                <option value="Arts">Arts</option>
+                            </select>
+                            <select id="availabilityFilter" onchange="app.filterBoard()" style="flex: 1; max-width: 200px;">
+                                <option value="">All Availability</option>
+                                <option value="Weekdays">Weekdays</option>
+                                <option value="Weekends">Weekends</option>
+                                <option value="Evening">Evening</option>
+                                <option value="Flexible">Flexible</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="boardCards"></div>
+                </div>
+
+                <!-- MATCHES -->
+                <div id="matches" class="view-section">
+                    <h1>Smart Matches</h1>
+                    <p class="text-secondary mb-24">Connections based on your learning goals</p>
+
+                    <div style="display: flex; gap: 8px; margin-bottom: 24px;">
+                        <button class="btn-secondary btn-sm" onclick="app.sortMatches('best')">Best Match</button>
+                        <button class="btn-secondary btn-sm" onclick="app.sortMatches('rating')">Highest Rated</button>
+                        <button class="btn-secondary btn-sm" onclick="app.sortMatches('active')">Most Active</button>
+                    </div>
+
+                    <div id="matchesContainer"></div>
+                </div>
+
+                <!-- REQUESTS -->
+                <div id="requests" class="view-section">
+                    <h1>Skill Exchange Requests</h1>
+                    <p class="text-secondary mb-24">Manage your connections and exchanges</p>
+
+                    <div class="tabs">
+                        <button class="tab-button active" onclick="app.switchTab(event, 'incoming')">Incoming</button>
+                        <button class="tab-button" onclick="app.switchTab(event, 'outgoing')">Outgoing</button>
+                        <button class="tab-button" onclick="app.switchTab(event, 'active')">Active</button>
+                        <button class="tab-button" onclick="app.switchTab(event, 'completed')">Completed</button>
+                    </div>
+
+                    <div id="incoming" class="tab-panel active"></div>
+                    <div id="outgoing" class="tab-panel"></div>
+                    <div id="active" class="tab-panel"></div>
+                    <div id="completed" class="tab-panel"></div>
+                </div>
+
+                <!-- MESSAGES -->
+                <div id="messages" class="view-section">
+                    <h1>Messages</h1>
+                    <p class="text-secondary mb-24">Chat with your learning partners</p>
+
+                    <div style="display: grid; grid-template-columns: 300px 1fr; gap: 16px;">
+                        <div>
+                            <h3>Conversations</h3>
+                            <div id="conversationList"></div>
+                        </div>
+                        <div id="chatPanel" class="card" style="display: none; flex-direction: column; height: 500px;">
+                            <h3 style="margin-bottom: 16px;" id="chatTitle">Select a conversation</h3>
+                            <div id="messageThread" style="flex: 1; overflow-y: auto; margin-bottom: 16px; display: none;"></div>
+                            <div style="display: none;" id="messageInputArea">
+                                <input type="text" id="messageInput" placeholder="Type a message..." style="margin-bottom: 8px;">
+                                <button class="btn-primary btn-full" onclick="app.sendMessage()">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SESSIONS -->
+                <div id="sessions" class="view-section">
+                    <h1>Training Sessions</h1>
+                    <p class="text-secondary mb-24">Schedule and manage your learning sessions</p>
+
+                    <button class="btn-primary mb-24" onclick="app.openModal('scheduleSessionModal')">📅 Schedule Session</button>
+
+                    <div class="tabs">
+                        <button class="tab-button active" onclick="app.switchTab(event, 'upcoming')">Upcoming</button>
+                        <button class="tab-button" onclick="app.switchTab(event, 'completed-sessions')">Completed</button>
+                        <button class="tab-button" onclick="app.switchTab(event, 'cancelled')">Cancelled</button>
+                    </div>
+
+                    <div id="upcoming" class="tab-panel active"></div>
+                    <div id="completed-sessions" class="tab-panel"></div>
+                    <div id="cancelled" class="tab-panel"></div>
+                </div>
+
+                <!-- CREDITS -->
+                <div id="credits" class="view-section">
+                    <h1>Learning Energy</h1>
+                    <p class="text-secondary mb-24">Track your credits and learning rewards</p>
+
+                    <div class="grid-3">
+                        <div class="stat-card">
+                            <div class="stat-label">Balance</div>
+                            <div class="stat-value" id="creditBalance">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Earned</div>
+                            <div class="stat-value" id="creditEarned">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Used</div>
+                            <div class="stat-value" id="creditUsed">0</div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 24px;">Transaction History</h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Activity</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="creditHistory"></tbody>
+                    </table>
+                </div>
+
+                <!-- PROGRESS -->
+                <div id="progress" class="view-section">
+                    <h1>Learning Progress</h1>
+                    <p class="text-secondary mb-24">Track your skill development and milestones</p>
+
+                    <div class="grid-3">
+                        <div class="stat-card">
+                            <div class="stat-label">Skills Learning</div>
+                            <div class="stat-value" id="totalSkillsLearning">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Learning Hours</div>
+                            <div class="stat-value" id="totalLearningHours">0</div>
+                            <div class="stat-context">Across completed sessions</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Sessions Done</div>
+                            <div class="stat-value" id="totalSessionsDone">0</div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 24px;">Your Learning Goals</h3>
+                    <div id="progressContainer"></div>
+                </div>
+
+                <!-- LEADERBOARD -->
+                <div id="leaderboard" class="view-section">
+                    <h1>Campus Contributors</h1>
+                    <p class="text-secondary mb-24">Students helping students grow</p>
+
+                    <div class="tabs">
+                        <button class="tab-button active" onclick="app.switchTab(event, 'credits-lb')">Credits Earned</button>
+                        <button class="tab-button" onclick="app.switchTab(event, 'sessions-lb')">Sessions</button>
+                        <button class="tab-button" onclick="app.switchTab(event, 'rating-lb')">Top Rated</button>
+                    </div>
+
+                    <div id="credits-lb" class="tab-panel active"></div>
+                    <div id="sessions-lb" class="tab-panel"></div>
+                    <div id="rating-lb" class="tab-panel"></div>
+                </div>
+
+                <!-- PROFILE -->
+                <div id="profile" class="view-section">
+                    <div class="flex-between mb-24">
+                        <h1>My Profile</h1>
+                        <button class="btn-primary" onclick="app.openModal('editProfileModal')">Edit Profile</button>
+                    </div>
+                    <div id="profileContent"></div>
+                </div>
+
+                <!-- NOTIFICATIONS -->
+                <div id="notifications" class="view-section">
+                    <h1>Notifications</h1>
+                    <p class="text-secondary mb-24">Stay updated on your exchanges</p>
+                    <div id="notificationsContainer"></div>
+                </div>
+
+                <!-- ADMIN -->
+                <div id="admin" class="view-section">
+                    <h1>Admin Panel</h1>
+                    <p class="text-secondary mb-24">Demo control center</p>
+
+                    <div class="grid-2 mb-24">
+                        <div class="stat-card">
+                            <div class="stat-label">Total Students</div>
+                            <div class="stat-value" id="adminTotalStudents">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Active Swaps</div>
+                            <div class="stat-value" id="adminActiveSwaps">0</div>
+                        </div>
+                    </div>
+
+                    <h3>Platform Statistics</h3>
+                    <div class="card">
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <td>Total Students</td>
+                                    <td><span id="stat-total-students">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Total Skills Posted</td>
+                                    <td><span id="stat-total-skills">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Completed Sessions</td>
+                                    <td><span id="stat-completed-sessions">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Credits Exchanged</td>
+                                    <td><span id="stat-credits-exchanged">0</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 style="margin-top: 24px;">Data Management</h3>
+                    <div class="card">
+                        <button class="btn-danger" onclick="app.resetDemoData()">Reset All Demo Data</button>
+                        <p class="text-muted" style="margin-top: 12px;">Restore application to original state</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <div id="requestSwapModal" class="modal-overlay" onclick="if(event.target === this) app.closeModal()">
+        <div class="modal">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title">Request Skill Swap</div>
+                </div>
+                <button class="modal-close" onclick="app.closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>With: <span id="swapWithName" style="color: var(--accent-primary);"></span></label>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>You Teach</label>
+                        <input type="text" id="swapYourSkill" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>They Teach</label>
+                        <input type="text" id="swapTheirSkill" readonly>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Duration</label>
+                        <select id="swapDuration">
+                            <option value="30">30 minutes</option>
+                            <option value="60" selected>60 minutes</option>
+                            <option value="90">90 minutes</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Mode</label>
+                        <select id="swapMode">
+                            <option value="Online">Online</option>
+                            <option value="Offline">Offline</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea id="swapMessage" placeholder="Tell them why you're interested..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="app.closeModal()">✕ Cancel</button>
+                <button class="btn-primary" onclick="app.submitSwapRequest()">→ Send Request</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="editProfileModal" class="modal-overlay" onclick="if(event.target === this) app.closeModal()">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Edit Profile</div>
+                <button class="modal-close" onclick="app.closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="editName">
+                </div>
+                <div class="form-group">
+                    <label>Bio</label>
+                    <textarea id="editBio" placeholder="Tell others about yourself..."></textarea>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Department</label>
+                        <select id="editDepartment">
+                            <option value="CS">Computer Science</option>
+                            <option value="Business">Business</option>
+                            <option value="Design">Design</option>
+                            <option value="Engineering">Engineering</option>
+                            <option value="Arts">Arts</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Year</label>
+                        <select id="editYear">
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Can Teach</label>
+                        <input type="text" id="editCanTeach" placeholder="Python, Design, Guitar">
+                    </div>
+                    <div class="form-group">
+                        <label>Want to Learn</label>
+                        <input type="text" id="editWantLearn" placeholder="Photography, Music, DSA">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="app.closeModal()">✕ Cancel</button>
+                <button class="btn-primary" onclick="app.saveProfile()">✓ Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="scheduleSessionModal" class="modal-overlay" onclick="if(event.target === this) app.closeModal()">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Schedule Session</div>
+                <button class="modal-close" onclick="app.closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>With Student</label>
+                    <select id="scheduleWith">
+                        <option value="">Select...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Skill</label>
+                    <input type="text" id="scheduleSkill" placeholder="e.g., Python Programming">
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="scheduleDate">
+                    </div>
+                    <div class="form-group">
+                        <label>Time</label>
+                        <input type="time" id="scheduleTime">
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Duration</label>
+                        <select id="scheduleDuration">
+                            <option value="30">30 minutes</option>
+                            <option value="60">60 minutes</option>
+                            <option value="90">90 minutes</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Mode</label>
+                        <select id="scheduleMode">
+                            <option value="Online">Online</option>
+                            <option value="Offline">Offline</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="app.closeModal()">✕ Cancel</button>
+                <button class="btn-primary" onclick="app.scheduleSession()">📅 Schedule</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="rateSessionModal" class="modal-overlay" onclick="if(event.target === this) app.closeModal()">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Rate Session</div>
+                <button class="modal-close" onclick="app.closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Session with: <span id="rateWith" style="color: var(--accent-primary);"></span></label>
+                </div>
+                <div class="form-group">
+                    <label>Overall Experience</label>
+                    <div class="star-rating" id="rateQuality"></div>
+                </div>
+                <div class="form-group">
+                    <label>Your Review</label>
+                    <textarea id="rateReview" placeholder="Share your experience..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="app.closeModal()">✕ Cancel</button>
+                <button class="btn-primary" onclick="app.submitReview()">⭐ Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOASTS -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // ===== DATA STORE =====
+        const DataStore = {
+            init() {
+                if (!localStorage.getItem('skillswap_init')) {
+                    this.resetData();
+                    localStorage.setItem('skillswap_init', 'true');
+                }
+                // Populate a realistic demo state once so the deployed prototype
+                // never opens with empty dashboards/credits/progress.
+                this.seedDemoActivity();
+            },
+
+            getUsers() { return JSON.parse(localStorage.getItem('users') || '[]'); },
+            getUser(id) { return this.getUsers().find(u => u.id === id); },
+            saveUser(user) {
+                const users = this.getUsers();
+                const idx = users.findIndex(u => u.id === user.id);
+                if (idx >= 0) users[idx] = user;
+                else users.push(user);
+                localStorage.setItem('users', JSON.stringify(users));
+            },
+
+            getRequests() { return JSON.parse(localStorage.getItem('requests') || '[]'); },
+            createRequest(req) {
+                const reqs = this.getRequests();
+                req.id = 'req_' + Date.now();
+                req.createdAt = new Date().toISOString();
+                reqs.push(req);
+                localStorage.setItem('requests', JSON.stringify(reqs));
+                return req;
+            },
+            updateRequest(id, data) {
+                const reqs = this.getRequests();
+                const req = reqs.find(r => r.id === id);
+                if (req) {
+                    Object.assign(req, data);
+                    localStorage.setItem('requests', JSON.stringify(reqs));
+                }
+                return req;
+            },
+
+            getChats() { return JSON.parse(localStorage.getItem('chats') || '[]'); },
+            getChat(id) { return this.getChats().find(c => c.id === id); },
+            createChat(chat) {
+                const chats = this.getChats();
+                chat.id = 'chat_' + Date.now();
+                chats.push(chat);
+                localStorage.setItem('chats', JSON.stringify(chats));
+                return chat;
+            },
+            addMessage(chatId, msg) {
+                const chats = this.getChats();
+                const chat = chats.find(c => c.id === chatId);
+                if (chat) {
+                    msg.id = 'msg_' + Date.now();
+                    msg.timestamp = new Date().toISOString();
+                    chat.messages.push(msg);
+                    chat.lastMessage = msg.text;
+                    chat.lastMessageTime = msg.timestamp;
+                    localStorage.setItem('chats', JSON.stringify(chats));
+                }
+            },
+
+            getSessions() { return JSON.parse(localStorage.getItem('sessions') || '[]'); },
+            createSession(sess) {
+                const sessions = this.getSessions();
+                sess.id = 'sess_' + Date.now();
+                sess.createdAt = new Date().toISOString();
+                sessions.push(sess);
+                localStorage.setItem('sessions', JSON.stringify(sessions));
+                return sess;
+            },
+            updateSession(id, data) {
+                const sessions = this.getSessions();
+                const sess = sessions.find(s => s.id === id);
+                if (sess) {
+                    Object.assign(sess, data);
+                    localStorage.setItem('sessions', JSON.stringify(sessions));
+                }
+                return sess;
+            },
+
+            getCredits() { return JSON.parse(localStorage.getItem('credits') || '[]'); },
+            addCredit(userId, amount, desc) {
+                const credits = this.getCredits();
+                credits.push({
+                    id: 'cred_' + Date.now(),
+                    userId,
+                    amount,
+                    description: desc,
+                    date: new Date().toISOString()
+                });
+                localStorage.setItem('credits', JSON.stringify(credits));
+            },
+
+            getReviews() { return JSON.parse(localStorage.getItem('reviews') || '[]'); },
+            createReview(rev) {
+                const reviews = this.getReviews();
+                rev.id = 'rev_' + Date.now();
+                rev.createdAt = new Date().toISOString();
+                reviews.push(rev);
+                localStorage.setItem('reviews', JSON.stringify(reviews));
+                return rev;
+            },
+
+            getProgress() { return JSON.parse(localStorage.getItem('progress') || '[]'); },
+            saveProgress(prog) {
+                const all = this.getProgress();
+                const idx = all.findIndex(p => p.id === prog.id);
+                if (idx >= 0) all[idx] = prog;
+                else all.push(prog);
+                localStorage.setItem('progress', JSON.stringify(all));
+            },
+
+            getNotifications() { return JSON.parse(localStorage.getItem('notifications') || '[]'); },
+            createNotification(notif) {
+                const notifs = this.getNotifications();
+                notif.id = 'notif_' + Date.now();
+                notif.createdAt = new Date().toISOString();
+                notif.read = false;
+                notifs.push(notif);
+                localStorage.setItem('notifications', JSON.stringify(notifs));
+                return notif;
+            },
+            markNotificationRead(id) {
+                const notifs = this.getNotifications();
+                const n = notifs.find(x => x.id === id);
+                if (n) {
+                    n.read = true;
+                    localStorage.setItem('notifications', JSON.stringify(notifs));
+                }
+            },
+
+            seedDemoActivity() {
+                if (localStorage.getItem('demo_activity_seeded') === 'true') return;
+
+                const users = DEMO_USERS;
+                const pairings = [
+                    ['u1', 'u2', 'Python', 'Public Speaking'],
+                    ['u3', 'u4', 'UI/UX', 'Photography'],
+                    ['u5', 'u6', 'Mathematics', 'Financial Analysis'],
+                    ['u7', 'u8', 'React', 'Arduino']
+                ];
+
+                const now = new Date();
+                const dateOnly = d => d.toISOString().slice(0, 10);
+                const future = new Date(now.getTime() + 1000 * 60 * 60 * 28);
+                const past = new Date(now.getTime() - 1000 * 60 * 60 * 72);
+
+                const requests = pairings.map(([a, b, teach, learn], i) => {
+                    const ua = users.find(u => u.id === a);
+                    const ub = users.find(u => u.id === b);
+                    return {
+                        id: `demo_req_${i+1}`,
+                        senderId: a,
+                        receiverId: b,
+                        senderName: ua.name,
+                        receiverName: ub.name,
+                        skillsExchanged: { teaching: teach, learning: learn },
+                        compatibility: 88 + i * 2,
+                        duration: '60',
+                        mode: i % 2 ? 'Both' : 'Online',
+                        message: 'I think we can help each other learn and grow.',
+                        status: 'accepted',
+                        createdAt: new Date(now.getTime() - (i + 1) * 86400000).toISOString()
+                    };
+                });
+
+                const sessions = [];
+                pairings.forEach(([a, b, teach, learn], i) => {
+                    const ua = users.find(u => u.id === a);
+                    const ub = users.find(u => u.id === b);
+                    sessions.push({
+                        id: `demo_done_${i+1}`,
+                        teacherId: a, teacherName: ua.name,
+                        learnerId: b, learnerName: ub.name,
+                        skill: teach,
+                        date: dateOnly(past),
+                        time: ['18:00','19:00','17:30','20:00'][i],
+                        duration: '60',
+                        mode: i % 2 ? 'Offline' : 'Online',
+                        status: 'completed',
+                        createdAt: new Date(now.getTime() - 1000 * 60 * 60 * 96).toISOString()
+                    });
+                    sessions.push({
+                        id: `demo_up_${i+1}`,
+                        teacherId: b, teacherName: ub.name,
+                        learnerId: a, learnerName: ua.name,
+                        skill: learn,
+                        date: dateOnly(future),
+                        time: ['18:30','17:00','19:30','16:30'][i],
+                        duration: '60',
+                        mode: i % 2 ? 'Online' : 'Both',
+                        status: 'scheduled',
+                        createdAt: now.toISOString()
+                    });
+                });
+
+                const credits = users.flatMap((u, i) => [
+                    { id: `demo_credit_${i+1}_earn`, userId: u.id, amount: 20 + (i % 3) * 5, description: 'Peer teaching session', date: new Date(now.getTime() - 1000 * 60 * 60 * 48).toISOString() },
+                    { id: `demo_credit_${i+1}_use`, userId: u.id, amount: -10, description: 'Learning session', date: new Date(now.getTime() - 1000 * 60 * 60 * 24).toISOString() }
+                ]);
+
+                const progress = users.map((u, i) => ({
+                    id: `demo_progress_${i+1}`,
+                    userId: u.id,
+                    skill: u.wantLearn[0] || 'Communication',
+                    level: i % 3 === 0 ? 'Intermediate' : 'Beginner',
+                    progress: 52 + (i * 7) % 37,
+                    sessions: 2 + (i % 4),
+                    hours: 2.5 + (i % 5) * 0.75,
+                    goal: `Build confidence in ${u.wantLearn[0] || 'this skill'}`
+                }));
+
+                const reviews = pairings.map(([a, b, teach], i) => ({
+                    id: `demo_review_${i+1}`,
+                    sessionId: `demo_done_${i+1}`,
+                    reviewerId: b,
+                    revieweeId: a,
+                    rating: 5 - (i % 2),
+                    text: ['Very clear explanation and practical examples.', 'Great session and easy to communicate with.', 'Helpful, patient and well prepared.', 'Really useful exchange — learned a lot.'][i],
+                    createdAt: new Date(now.getTime() - (i + 1) * 86400000).toISOString()
+                }));
+
+                const chats = pairings.map(([a, b], i) => {
+                    const ua = users.find(u => u.id === a);
+                    const ub = users.find(u => u.id === b);
+                    const msg = i % 2 === 0 ? 'See you in the next session! Looking forward to learning together.' : 'Perfect, I have the session details. See you there!';
+                    return {
+                        id: `demo_chat_${i+1}`,
+                        user1Id: a, user1Name: ua.name,
+                        user2Id: b, user2Name: ub.name,
+                        messages: [{ senderId: a, text: msg, timestamp: new Date(now.getTime() - 1000 * 60 * 90).toISOString() }],
+                        lastMessage: msg,
+                        lastMessageTime: new Date(now.getTime() - 1000 * 60 * 90).toISOString()
+                    };
+                });
+
+                const notifications = users.map((u, i) => ({
+                    id: `demo_notif_${i+1}`,
+                    userId: u.id,
+                    type: 'session',
+                    title: 'Upcoming learning session',
+                    message: 'You have a skill exchange session coming up.',
+                    createdAt: new Date(now.getTime() - 1000 * 60 * 30).toISOString(),
+                    read: false
+                }));
+
+                if (!DataStore.getRequests().length) localStorage.setItem('requests', JSON.stringify(requests));
+                if (!DataStore.getSessions().length) localStorage.setItem('sessions', JSON.stringify(sessions));
+                if (!DataStore.getCredits().length) localStorage.setItem('credits', JSON.stringify(credits));
+                if (!DataStore.getProgress().length) localStorage.setItem('progress', JSON.stringify(progress));
+                if (!DataStore.getReviews().length) localStorage.setItem('reviews', JSON.stringify(reviews));
+                if (!DataStore.getChats().length) localStorage.setItem('chats', JSON.stringify(chats));
+                if (!DataStore.getNotifications().length) localStorage.setItem('notifications', JSON.stringify(notifications));
+
+                // Keep profile-level credit totals aligned with the demo ledger.
+                users.forEach(u => {
+                    const ledger = credits.filter(c => c.userId === u.id);
+                    u.credits = ledger.reduce((sum, c) => sum + c.amount, 0);
+                    u.sessions = Math.max(u.sessions || 0, sessions.filter(s => s.teacherId === u.id || s.learnerId === u.id).length + 4);
+                });
+                localStorage.setItem('users', JSON.stringify(users));
+                localStorage.setItem('demo_activity_seeded', 'true');
+            },
+
+            resetData() {
+                localStorage.clear();
+                localStorage.setItem('users', JSON.stringify(DEMO_USERS));
+                localStorage.setItem('requests', '[]');
+                localStorage.setItem('chats', '[]');
+                localStorage.setItem('sessions', '[]');
+                localStorage.setItem('credits', '[]');
+                localStorage.setItem('reviews', '[]');
+                localStorage.setItem('progress', '[]');
+                localStorage.setItem('notifications', '[]');
+                localStorage.setItem('skillswap_init', 'true');
+            }
+        };
+
+        // ===== DEMO DATA =====
+        const DEMO_USERS = [
+            { id: 'u1', name: 'Arjun Mehta', department: 'CS', year: 3, college: 'IIT Bombay', bio: 'Backend developer passionate about learning', avatar: 'AM', canTeach: ['Python', 'Django', 'DSA'], wantLearn: ['UI/UX', 'Public Speaking'], availability: ['Weekdays', 'Evening'], sessionMode: 'Online', credits: 25, rating: 4.8, reviewCount: 5, sessions: 8, verified: ['Python'] },
+            { id: 'u2', name: 'Karan Joshi', department: 'Business', year: 2, college: 'IIT Bombay', bio: 'MBA student focused on entrepreneurship', avatar: 'KJ', canTeach: ['Public Speaking', 'Excel'], wantLearn: ['Python', 'Data Analysis'], availability: ['Weekends', 'Evening'], sessionMode: 'Both', credits: 18, rating: 4.6, reviewCount: 3, sessions: 5, verified: ['Public Speaking'] },
+            { id: 'u3', name: 'Sneha Kulkarni', department: 'Design', year: 4, college: 'IIT Bombay', bio: 'UX/UI designer with startup experience', avatar: 'SK', canTeach: ['UI/UX', 'Figma', 'Design Thinking'], wantLearn: ['Python'], availability: ['Weekdays'], sessionMode: 'Online', credits: 32, rating: 4.9, reviewCount: 8, sessions: 12, verified: ['Figma'] },
+            { id: 'u4', name: 'Priya Singh', department: 'Arts', year: 2, college: 'IIT Bombay', bio: 'Photographer and content creator', avatar: 'PS', canTeach: ['Photography', 'Video Editing'], wantLearn: ['Python', 'Marketing'], availability: ['Flexible'], sessionMode: 'Both', credits: 28, rating: 4.8, reviewCount: 6, sessions: 10, verified: ['Photography'] },
+            { id: 'u5', name: 'Rohit Verma', department: 'CS', year: 1, college: 'IIT Bombay', bio: 'First year eager to learn', avatar: 'RV', canTeach: ['Mathematics', 'Competitive Programming'], wantLearn: ['Full-stack'], availability: ['Evening'], sessionMode: 'Online', credits: 10, rating: 4.5, reviewCount: 2, sessions: 3, verified: [] },
+            { id: 'u6', name: 'Anjali Menon', department: 'Business', year: 3, college: 'IIT Bombay', bio: 'Finance enthusiast', avatar: 'AM', canTeach: ['Financial Analysis', 'Stock Market'], wantLearn: ['Python', 'Data Science'], availability: ['Weekends'], sessionMode: 'Both', credits: 20, rating: 4.6, reviewCount: 3, sessions: 5, verified: ['Financial Analysis'] },
+            { id: 'u7', name: 'Nikhil Patel', department: 'CS', year: 4, college: 'IIT Bombay', bio: 'Full-stack developer', avatar: 'NP', canTeach: ['React', 'Node.js'], wantLearn: ['Machine Learning'], availability: ['Evening'], sessionMode: 'Online', credits: 35, rating: 4.9, reviewCount: 7, sessions: 11, verified: ['React'] },
+            { id: 'u8', name: 'Rajeev Kumar', department: 'Engineering', year: 3, college: 'IIT Bombay', bio: 'Electronics enthusiast', avatar: 'RK', canTeach: ['Electronics', 'Arduino'], wantLearn: ['Web Dev'], availability: ['Weekends'], sessionMode: 'Offline', credits: 22, rating: 4.7, reviewCount: 4, sessions: 7, verified: ['Arduino'] }
+        ];
+
+        // ===== MATCHING ENGINE =====
+        class Matcher {
+            match(s1, s2) {
+                let score = 0;
+                const s1Teach = new Set(s1.canTeach);
+                const s1Learn = new Set(s1.wantLearn);
+                const s2Teach = new Set(s2.canTeach);
+                const s2Learn = new Set(s2.wantLearn);
+
+                const s1_to_s2 = [...s1Teach].filter(x => s2Learn.has(x));
+                const s2_to_s1 = [...s2Teach].filter(x => s1Learn.has(x));
+
+                if (s1_to_s2.length && s2_to_s1.length) score += 40;
+                else if (s1_to_s2.length || s2_to_s1.length) score += 20;
+
+                const common = [...new Set(s1.availability)].filter(x => new Set(s2.availability).has(x));
+                if (common.length) score += 15;
+                if (s1.sessionMode === s2.sessionMode || s1.sessionMode === 'Both' || s2.sessionMode === 'Both') score += 10;
+                if (s1.college === s2.college) score += 10;
+                if (s2.rating >= 4.7) score += 15;
+                if (s2.sessions >= 8) score += 10;
+
+                return { score: Math.min(score, 100) };
+            }
+
+            getMatches(userId) {
+                const s = DataStore.getUser(userId);
+                const others = DataStore.getUsers().filter(u => u.id !== userId);
+                return others.map(o => ({ user: o, ...this.match(s, o) })).sort((a, b) => b.score - a.score);
+            }
+        }
+
+        const matcher = new Matcher();
+
+        // ===== APP =====
+        const app = {
+            currentUserId: null,
+            currentView: 'dashboard',
+            currentChat: null,
+
+            init() {
+                DataStore.init();
+                const saved = localStorage.getItem('currentUser');
+                if (saved && DataStore.getUser(saved)) {
+                    this.setCurrentUser(saved);
+                    this.showApp();
+                } else {
+                    this.showLogin();
+                }
+            },
+
+            showLogin() {
+                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('appContainer').classList.add('hidden');
+                const list = document.getElementById('studentList');
+                list.innerHTML = DataStore.getUsers().map(u => `
+                    <button class="student-button" onclick="app.setCurrentUser('${u.id}')">
+                        <div class="student-name">${u.name}</div>
+                        <div class="student-meta">${u.department} • Year ${u.year}</div>
+                    </button>
+                `).join('');
+            },
+
+            showApp() {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('appContainer').classList.remove('hidden');
+                this.updateHeader();
+                this.renderDashboard();
+            },
+
+            setCurrentUser(id) {
+                this.currentUserId = id;
+                localStorage.setItem('currentUser', id);
+                this.showApp();
+            },
+
+            switchStudent() {
+                this.showLogin();
+            },
+
+            navigate(view) {
+                this.currentView = view;
+                document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+                document.getElementById(view).classList.add('active');
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                event.target.closest('.nav-item')?.classList.add('active');
+                document.getElementById('viewTitle').textContent = view.charAt(0).toUpperCase() + view.slice(1);
+
+                if (view === 'dashboard') this.renderDashboard();
+                else if (view === 'board') this.renderBoard();
+                else if (view === 'matches') this.renderMatches();
+                else if (view === 'requests') this.renderRequests();
+                else if (view === 'messages') this.renderMessages();
+                else if (view === 'sessions') this.renderSessions();
+                else if (view === 'credits') this.renderCredits();
+                else if (view === 'progress') this.renderProgress();
+                else if (view === 'leaderboard') this.renderLeaderboard();
+                else if (view === 'profile') this.renderProfile();
+                else if (view === 'notifications') this.renderNotifications();
+                else if (view === 'admin') this.renderAdmin();
+            },
+
+            updateHeader() {
+                const u = DataStore.getUser(this.currentUserId);
+                document.getElementById('userName').textContent = u.name.split(' ')[0];
+                document.getElementById('userAvatar').textContent = u.avatar;
+            },
+
+            renderDashboard() {
+                const u = DataStore.getUser(this.currentUserId);
+                document.getElementById('dashboardName').textContent = u.name.split(' ')[0];
+
+                const reqs = DataStore.getRequests().filter(r => (r.senderId === this.currentUserId || r.receiverId === this.currentUserId) && r.status === 'accepted');
+                const sesses = DataStore.getSessions().filter(s => (s.teacherId === this.currentUserId || s.learnerId === this.currentUserId) && new Date(s.date) >= new Date());
+                const credits = DataStore.getCredits().filter(c => c.userId === this.currentUserId).reduce((s, c) => s + c.amount, 0);
+
+                document.getElementById('statCredits').textContent = credits;
+                document.getElementById('statSwaps').textContent = reqs.length;
+                document.getElementById('statSessions').textContent = sesses.length;
+                document.getElementById('statRating').textContent = u.rating ? u.rating.toFixed(1) : '--';
+
+                const matches = matcher.getMatches(this.currentUserId).slice(0, 3);
+                document.getElementById('dashboardMatches').innerHTML = matches.map(m => `
+                    <div class="card-compact">
+                        <div class="flex-between">
+                            <div>
+                                <div style="font-weight: 600; margin-bottom: 2px;">${m.user.name}</div>
+                                <div class="text-muted">${m.score}% compatible</div>
+                            </div>
+                            <button class="btn-primary btn-sm" onclick="app.initiateSwapRequest('${m.user.id}')">✨ Request</button>
+                        </div>
+                    </div>
+                `).join('');
+
+                document.getElementById('dashboardSessions').innerHTML = sesses.length === 0 ? '<p class="text-muted">No upcoming sessions</p>' : sesses.slice(0, 3).map(s => `
+                    <div class="card-compact">
+                        <div class="flex-between">
+                            <div>
+                                <div style="font-weight: 600; margin-bottom: 2px;">${s.skill}</div>
+                                <div class="text-muted">${new Date(s.date).toLocaleDateString()} at ${s.time}</div>
+                            </div>
+                            <span class="badge badge-success">${s.status}</span>
+                        </div>
+                    </div>
+                `).join('');
+            },
+
+            renderBoard() {
+                const others = DataStore.getUsers().filter(u => u.id !== this.currentUserId);
+                this.displayBoardCards(others);
+            },
+
+            displayBoardCards(users) {
+                document.getElementById('boardCards').innerHTML = users.map(u => `
+                    <div class="card">
+                        <div style="display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px;">
+                            <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; color: white; flex-shrink: 0;">${u.avatar}</div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; margin-bottom: 2px;">${u.name}</div>
+                                <div class="text-muted">${u.department} • Year ${u.year}</div>
+                                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">${u.bio}</div>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <div style="font-size: 12px; font-weight: 600; margin-bottom: 6px;">Can Teach</div>
+                            <div>${u.canTeach.map(s => `<span class="skill-tag">${s}</span>`).join('')}</div>
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <div style="font-size: 12px; font-weight: 600; margin-bottom: 6px;">Wants to Learn</div>
+                            <div>${u.wantLearn.map(s => `<span class="skill-tag">${s}</span>`).join('')}</div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn-primary btn-sm" onclick="app.initiateSwapRequest('${u.id}')">✨ Request</button>
+                            <button class="btn-secondary btn-sm" onclick="app.viewProfile('${u.id}')">👤 View</button>
+                        </div>
+                    </div>
+                `).join('');
+            },
+
+            filterBoard() {
+                const search = document.getElementById('boardSearch').value.toLowerCase();
+                const dept = document.getElementById('departmentFilter').value;
+                const avail = document.getElementById('availabilityFilter').value;
+                let users = DataStore.getUsers().filter(u => u.id !== this.currentUserId);
+                if (search) users = users.filter(u => u.name.toLowerCase().includes(search) || u.canTeach.some(s => s.toLowerCase().includes(search)));
+                if (dept) users = users.filter(u => u.department === dept);
+                if (avail) users = users.filter(u => u.availability.includes(avail));
+                this.displayBoardCards(users);
+            },
+
+            renderMatches() {
+                const matches = matcher.getMatches(this.currentUserId);
+                document.getElementById('matchesContainer').innerHTML = matches.map(m => `
+                    <div class="card">
+                        <div style="display: flex; gap: 14px; margin-bottom: 14px;">
+                            <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; color: white; flex-shrink: 0;">${m.user.avatar}</div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600;">${m.user.name}</div>
+                                <div class="text-muted">${m.user.department} • ${m.user.rating} ⭐</div>
+                                <div style="font-size: 18px; font-weight: 800; margin-top: 6px; background: linear-gradient(135deg, var(--success), #3dd68e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">${m.score}%</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn-primary btn-sm" onclick="app.initiateSwapRequest('${m.user.id}')">Request</button>
+                            <button class="btn-secondary btn-sm" onclick="app.viewProfile('${m.user.id}')">Profile</button>
+                        </div>
+                    </div>
+                `).join('');
+            },
+
+            sortMatches(by) {
+                const matches = matcher.getMatches(this.currentUserId);
+                if (by === 'rating') matches.sort((a, b) => b.user.rating - a.user.rating);
+                else if (by === 'active') matches.sort((a, b) => b.user.sessions - a.user.sessions);
+                this.renderMatches();
+            },
+
+            initiateSwapRequest(stuId) {
+                const stu = DataStore.getUser(stuId);
+                const cu = DataStore.getUser(this.currentUserId);
+                const m = matcher.getMatches(this.currentUserId).find(x => x.user.id === stuId);
+
+                const myTeach = cu.canTeach.filter(s => stu.wantLearn.includes(s))[0] || cu.canTeach[0];
+                const theirTeach = stu.canTeach.filter(s => cu.wantLearn.includes(s))[0] || stu.canTeach[0];
+
+                app._swapReq = { stuId, stuName: stu.name, mySkill: myTeach, theirSkill: theirTeach, score: m.score };
+                document.getElementById('swapWithName').textContent = stu.name;
+                document.getElementById('swapYourSkill').value = myTeach;
+                document.getElementById('swapTheirSkill').value = theirTeach;
+                document.getElementById('swapMessage').value = '';
+
+                this.openModal('requestSwapModal');
+            },
+
+            submitSwapRequest() {
+                const msg = document.getElementById('swapMessage').value;
+                const dur = document.getElementById('swapDuration').value;
+                const mode = document.getElementById('swapMode').value;
+
+                DataStore.createRequest({
+                    senderId: this.currentUserId,
+                    receiverId: app._swapReq.stuId,
+                    senderName: DataStore.getUser(this.currentUserId).name,
+                    receiverName: app._swapReq.stuName,
+                    skillsExchanged: { teaching: app._swapReq.mySkill, learning: app._swapReq.theirSkill },
+                    compatibility: app._swapReq.score,
+                    duration: dur,
+                    mode,
+                    message: msg,
+                    status: 'pending'
+                });
+
+                DataStore.createNotification({
+                    userId: app._swapReq.stuId,
+                    type: 'request',
+                    title: `${DataStore.getUser(this.currentUserId).name} sent a request`,
+                    message: `${app._swapReq.mySkill} ↔ ${app._swapReq.theirSkill}`
+                });
+
+                this.showToast('Request sent!', 'success');
+                this.closeModal();
+            },
+
+            renderRequests() {
+                const reqs = DataStore.getRequests();
+                const cu = this.currentUserId;
+
+                const incoming = reqs.filter(r => r.receiverId === cu);
+                const outgoing = reqs.filter(r => r.senderId === cu);
+                const active = reqs.filter(r => (r.senderId === cu || r.receiverId === cu) && r.status === 'accepted');
+                const completed = reqs.filter(r => (r.senderId === cu || r.receiverId === cu) && r.status === 'completed');
+
+                document.getElementById('incoming').innerHTML = this.renderReqList(incoming);
+                document.getElementById('outgoing').innerHTML = this.renderReqList(outgoing);
+                document.getElementById('active').innerHTML = this.renderReqList(active);
+                document.getElementById('completed').innerHTML = this.renderReqList(completed);
+            },
+
+            renderReqList(reqs) {
+                if (!reqs.length) return '<p class="text-muted">No requests</p>';
+                return reqs.map(r => {
+                    const isReceiver = r.receiverId === this.currentUserId;
+                    const otherId = isReceiver ? r.senderId : r.receiverId;
+                    const otherName = isReceiver ? r.senderName : r.receiverName;
+                    let actions = '';
+                    if (isReceiver && r.status === 'pending') {
+                        actions = `<button class="btn-success btn-sm" onclick="app.acceptRequest('${r.id}')">Accept</button>
+                                  <button class="btn-danger btn-sm" onclick="app.rejectRequest('${r.id}')">Reject</button>`;
+                    } else if (!isReceiver && r.status === 'pending') {
+                        actions = `<button class="btn-danger btn-sm" onclick="app.cancelRequest('${r.id}')">Cancel</button>`;
+                    } else if (r.status === 'accepted') {
+                        actions = `<button class="btn-primary btn-sm" onclick="app.navigate('messages')">Chat</button>`;
+                    }
+                    return `
+                        <div class="card-compact">
+                            <div style="margin-bottom: 12px;">
+                                <div style="font-weight: 600; margin-bottom: 4px;">${otherName}</div>
+                                <div class="text-muted">${r.skillsExchanged.teaching} ↔ ${r.skillsExchanged.learning}</div>
+                            </div>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                ${actions}
+                                <span class="badge" style="background: ${r.status === 'pending' ? 'rgba(240, 200, 90, 0.2); color: var(--warning)' : r.status === 'accepted' ? 'rgba(91, 224, 175, 0.2); color: var(--success)' : 'rgba(100, 100, 116, 0.2); color: var(--text-secondary)'};">${r.status}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            acceptRequest(reqId) {
+                const req = DataStore.getRequests().find(r => r.id === reqId);
+                DataStore.updateRequest(reqId, { status: 'accepted' });
+                const existing = DataStore.getChats().find(c => (c.user1Id === req.senderId && c.user2Id === req.receiverId) || (c.user1Id === req.receiverId && c.user2Id === req.senderId));
+                if (!existing) {
+                    DataStore.createChat({
+                        user1Id: req.senderId,
+                        user1Name: req.senderName,
+                        user2Id: req.receiverId,
+                        user2Name: req.receiverName,
+                        messages: []
+                    });
+                }
+                DataStore.createNotification({
+                    userId: req.senderId,
+                    type: 'accepted',
+                    title: `${req.receiverName} accepted your request`,
+                    message: `Ready to schedule?`
+                });
+                this.showToast('Request accepted!', 'success');
+                this.renderRequests();
+            },
+
+            rejectRequest(reqId) { if (confirm('Reject this request?')) { DataStore.updateRequest(reqId, { status: 'rejected' }); this.showToast('Request rejected', 'success'); this.renderRequests(); } },
+            cancelRequest(reqId) { if (confirm('Cancel this request?')) { DataStore.updateRequest(reqId, { status: 'cancelled' }); this.showToast('Request cancelled', 'success'); this.renderRequests(); } },
+
+            renderMessages() {
+                const chats = DataStore.getChats().filter(c => c.user1Id === this.currentUserId || c.user2Id === this.currentUserId);
+                const list = document.getElementById('conversationList');
+                if (!chats.length) {
+                    list.innerHTML = '<p class="text-muted" style="font-size: 12px;">No conversations</p>';
+                    document.getElementById('chatPanel').style.display = 'none';
+                } else {
+                    list.innerHTML = chats.map(chat => {
+                        const otherId = chat.user1Id === this.currentUserId ? chat.user2Id : chat.user1Id;
+                        const otherName = chat.user1Id === this.currentUserId ? chat.user2Name : chat.user1Name;
+                        return `<div class="card-compact" style="cursor: pointer;" onclick="app.openChat('${chat.id}')">
+                            <div style="font-weight: 600; margin-bottom: 4px;">${otherName}</div>
+                            <div class="text-muted" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${chat.lastMessage || 'No messages'}</div>
+                        </div>`;
+                    }).join('');
+                }
+            },
+
+            openChat(chatId) {
+                this.currentChat = chatId;
+                const chat = DataStore.getChat(chatId);
+                const otherId = chat.user1Id === this.currentUserId ? chat.user2Id : chat.user1Id;
+                const otherName = chat.user1Id === this.currentUserId ? chat.user2Name : chat.user1Name;
+
+                document.getElementById('chatTitle').textContent = otherName;
+                document.getElementById('chatPanel').style.display = 'flex';
+                document.getElementById('messageThread').style.display = 'block';
+                document.getElementById('messageInputArea').style.display = 'block';
+
+                const thread = document.getElementById('messageThread');
+                thread.innerHTML = (chat.messages || []).map(msg => `
+                    <div style="margin-bottom: 12px; text-align: ${msg.senderId === this.currentUserId ? 'right' : 'left'};">
+                        <div style="display: inline-block; background: ${msg.senderId === this.currentUserId ? 'var(--accent-primary)' : 'var(--bg-elevated)'}; color: white; padding: 10px 14px; border-radius: 12px; max-width: 70%; font-size: 13px;">
+                            ${msg.text}
+                        </div>
+                    </div>
+                `).join('');
+                thread.scrollTop = thread.scrollHeight;
+            },
+
+            sendMessage() {
+                const text = document.getElementById('messageInput').value.trim();
+                if (!text || !this.currentChat) return;
+                DataStore.addMessage(this.currentChat, { senderId: this.currentUserId, text });
+                document.getElementById('messageInput').value = '';
+                this.openChat(this.currentChat);
+            },
+
+            renderSessions() {
+                const sessions = DataStore.getSessions().filter(s => s.teacherId === this.currentUserId || s.learnerId === this.currentUserId);
+                const now = new Date();
+
+                const upcoming = sessions.filter(s => new Date(s.date) > now && s.status !== 'cancelled');
+                const completed = sessions.filter(s => s.status === 'completed');
+                const cancelled = sessions.filter(s => s.status === 'cancelled');
+
+                document.getElementById('upcoming').innerHTML = upcoming.length === 0 ? '<p class="text-muted">No upcoming sessions</p>' : upcoming.map(s => this.renderSessionCard(s)).join('');
+                document.getElementById('completed-sessions').innerHTML = completed.length === 0 ? '<p class="text-muted">No completed sessions</p>' : completed.map(s => this.renderSessionCard(s)).join('');
+                document.getElementById('cancelled').innerHTML = cancelled.length === 0 ? '<p class="text-muted">No cancelled sessions</p>' : cancelled.map(s => this.renderSessionCard(s)).join('');
+
+                const select = document.getElementById('scheduleWith');
+                select.innerHTML = '<option value="">Select...</option>' + DataStore.getUsers().filter(u => u.id !== this.currentUserId).map(u => `<option value="${u.id}">${u.name}</option>`).join('');
+            },
+
+            renderSessionCard(sess) {
+                const isTeacher = sess.teacherId === this.currentUserId;
+                const otherId = isTeacher ? sess.learnerId : sess.teacherId;
+                const otherName = isTeacher ? sess.learnerName : sess.teacherName;
+                let actions = '';
+                if (sess.status === 'scheduled') {
+                    actions = `<button class="btn-success btn-sm" onclick="app.completeSession('${sess.id}')">Complete</button>
+                               <button class="btn-secondary btn-sm" onclick="app.cancelSession('${sess.id}')">Cancel</button>`;
+                } else if (sess.status === 'completed') {
+                    const hasReview = DataStore.getReviews().find(r => r.sessionId === sess.id && r.reviewerId === this.currentUserId);
+                    if (!hasReview) actions = `<button class="btn-primary btn-sm" onclick="app.rateSession('${sess.id}')">Review</button>`;
+                }
+                return `
+                    <div class="card-compact">
+                        <div style="margin-bottom: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div>
+                                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">${new Date(sess.date).toLocaleDateString()} at ${sess.time}</div>
+                                    <div style="font-weight: 600; margin-bottom: 4px;">${sess.skill}</div>
+                                    <div class="text-muted">with ${otherName}</div>
+                                </div>
+                                <span class="badge" style="background: ${sess.status === 'scheduled' ? 'rgba(86, 217, 255, 0.2); color: var(--accent-secondary)' : 'rgba(91, 224, 175, 0.2); color: var(--success)'};">${sess.status}</span>
+                            </div>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">${sess.duration} min • ${sess.mode}</div>
+                        <div style="display: flex; gap: 8px;">${actions}</div>
+                    </div>
+                `;
+            },
+
+            scheduleSession() {
+                const withId = document.getElementById('scheduleWith').value;
+                const skill = document.getElementById('scheduleSkill').value;
+                const date = document.getElementById('scheduleDate').value;
+                const time = document.getElementById('scheduleTime').value;
+                const dur = document.getElementById('scheduleDuration').value;
+                const mode = document.getElementById('scheduleMode').value;
+
+                if (!withId || !skill || !date || !time) { this.showToast('Fill all fields', 'error'); return; }
+                if (new Date(date) < new Date()) { this.showToast('Cannot schedule in the past', 'error'); return; }
+
+                const other = DataStore.getUser(withId);
+                DataStore.createSession({
+                    teacherId: this.currentUserId,
+                    teacherName: DataStore.getUser(this.currentUserId).name,
+                    learnerId: withId,
+                    learnerName: other.name,
+                    skill,
+                    date,
+                    time,
+                    duration: dur,
+                    mode,
+                    status: 'scheduled'
+                });
+
+                DataStore.createNotification({
+                    userId: withId,
+                    type: 'session',
+                    title: `${DataStore.getUser(this.currentUserId).name} scheduled a session`,
+                    message: `${skill} on ${new Date(date).toLocaleDateString()}`
+                });
+
+                this.showToast('Session scheduled!', 'success');
+                this.closeModal();
+                this.renderSessions();
+            },
+
+            completeSession(sessId) {
+                const sess = DataStore.getSession(sessId);
+                DataStore.updateSession(sessId, { status: 'completed' });
+                const credits = Math.floor(sess.duration / 30) * 5;
+                DataStore.addCredit(sess.teacherId, credits, `${sess.skill} taught`);
+                this.showToast('Session complete! Credits awarded.', 'success');
+                this.renderSessions();
+            },
+
+            cancelSession(sessId) { if (confirm('Cancel?')) { DataStore.updateSession(sessId, { status: 'cancelled' }); this.showToast('Session cancelled', 'success'); this.renderSessions(); } },
+
+            rateSession(sessId) {
+                const sess = DataStore.getSession(sessId);
+                const otherId = sess.teacherId === this.currentUserId ? sess.learnerId : sess.teacherId;
+                const otherName = sess.teacherId === this.currentUserId ? sess.learnerName : sess.teacherName;
+
+                document.getElementById('rateWith').textContent = otherName;
+                const elem = document.getElementById('rateQuality');
+                let stars = '';
+                for (let i = 1; i <= 5; i++) stars += `<span class="star" onclick="app.setRating(${i})" data-rating="${i}">★</span>`;
+                elem.innerHTML = stars;
+                document.getElementById('rateReview').value = '';
+                app._ratingSession = sessId;
+                app._ratingOtherId = otherId;
+                this.openModal('rateSessionModal');
+            },
+
+            setRating(rating) {
+                document.querySelectorAll('#rateQuality .star').forEach((s, i) => {
+                    if (i < rating) s.classList.add('filled');
+                    else s.classList.remove('filled');
+                });
+            },
+
+            submitReview() {
+                const rating = document.querySelectorAll('#rateQuality .star.filled').length;
+                const text = document.getElementById('rateReview').value;
+                if (!rating) { this.showToast('Please rate', 'error'); return; }
+                DataStore.createReview({
+                    sessionId: app._ratingSession,
+                    reviewerId: this.currentUserId,
+                    revieweeId: app._ratingOtherId,
+                    rating,
+                    text
+                });
+                const user = DataStore.getUser(app._ratingOtherId);
+                const reviews = DataStore.getReviews().filter(r => r.revieweeId === app._ratingOtherId);
+                user.rating = Math.round(reviews.reduce((s, r) => s + r.rating, 0) / reviews.length * 10) / 10;
+                user.reviewCount = reviews.length;
+                DataStore.saveUser(user);
+                this.showToast('Review submitted!', 'success');
+                this.closeModal();
+                this.renderSessions();
+            },
+
+            getSession(id) { return DataStore.getSessions().find(s => s.id === id); },
+
+            renderCredits() {
+                const credits = DataStore.getCredits().filter(c => c.userId === this.currentUserId);
+                const balance = credits.reduce((s, c) => s + c.amount, 0);
+                const earned = credits.filter(c => c.amount > 0).reduce((s, c) => s + c.amount, 0);
+                const used = credits.filter(c => c.amount < 0).reduce((s, c) => s + Math.abs(c.amount), 0);
+
+                document.getElementById('creditBalance').textContent = balance;
+                document.getElementById('creditEarned').textContent = earned;
+                document.getElementById('creditUsed').textContent = used;
+
+                document.getElementById('creditHistory').innerHTML = credits.length === 0 ? '<tr><td colspan="3" style="text-align: center; color: var(--text-muted);">No transactions</td></tr>' : credits.slice().reverse().map(c => `
+                    <tr>
+                        <td>${new Date(c.date).toLocaleDateString()}</td>
+                        <td>${c.description}</td>
+                        <td style="color: ${c.amount > 0 ? 'var(--success)' : 'var(--text-secondary)'}; font-weight: 600;">${c.amount > 0 ? '+' : ''}${c.amount}</td>
+                    </tr>
+                `).join('');
+            },
+
+            renderProgress() {
+                const progs = DataStore.getProgress().filter(p => p.userId === this.currentUserId);
+                const totalHours = progs.reduce((s, p) => s + (p.hours || 0), 0);
+
+                document.getElementById('totalSkillsLearning').textContent = progs.length;
+                document.getElementById('totalLearningHours').textContent = totalHours.toFixed(1);
+                document.getElementById('totalSessionsDone').textContent = DataStore.getSessions().filter(s => (s.teacherId === this.currentUserId || s.learnerId === this.currentUserId) && s.status === 'completed').length;
+
+                document.getElementById('progressContainer').innerHTML = progs.length === 0 ? '<p class="text-muted">Start learning to track progress</p>' : progs.map(p => `
+                    <div class="card-compact">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                            <div>
+                                <div style="font-weight: 600;">${p.skill}</div>
+                                <div class="text-muted">${p.sessions} sessions • ${p.hours.toFixed(1)} hours</div>
+                            </div>
+                            <span class="badge badge-level">${p.level}</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar" style="width: ${p.progress}%"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-top: 8px;">
+                            <span>${p.progress}%</span>
+                            <span>${p.goal || 'Keep learning'}</span>
+                        </div>
+                    </div>
+                `).join('');
+            },
+
+            renderLeaderboard() {
+                const users = DataStore.getUsers();
+                const credits = DataStore.getCredits();
+
+                const byCredits = users.map(u => ({
+                    user: u,
+                    total: credits.filter(c => c.userId === u.id && c.amount > 0).reduce((s, c) => s + c.amount, 0)
+                })).sort((a, b) => b.total - a.total);
+
+                const sessions = DataStore.getSessions().filter(s => s.status === 'completed');
+                const bySessions = users.map(u => ({
+                    user: u,
+                    count: sessions.filter(s => s.teacherId === u.id || s.learnerId === u.id).length
+                })).sort((a, b) => b.count - a.count);
+
+                const byRating = users.filter(u => u.rating).sort((a, b) => b.rating - a.rating);
+
+                document.getElementById('credits-lb').innerHTML = byCredits.map((item, i) => `
+                    <div class="card-compact">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="font-size: 18px; font-weight: 800; color: var(--text-muted); width: 24px;">#${i+1}</div>
+                                <div>
+                                    <div style="font-weight: 600;">${item.user.name}</div>
+                                    <div class="text-muted">${item.user.department}</div>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-weight: 700; color: var(--accent-primary);">${item.total}</div>
+                                <div class="text-muted">credits</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                document.getElementById('sessions-lb').innerHTML = bySessions.map((item, i) => `
+                    <div class="card-compact">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="font-size: 18px; font-weight: 800; color: var(--text-muted); width: 24px;">#${i+1}</div>
+                                <div>
+                                    <div style="font-weight: 600;">${item.user.name}</div>
+                                    <div class="text-muted">${item.user.department}</div>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-weight: 700; color: var(--accent-secondary);">${item.count}</div>
+                                <div class="text-muted">sessions</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                document.getElementById('rating-lb').innerHTML = byRating.map((u, i) => `
+                    <div class="card-compact">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="font-size: 18px; font-weight: 800; color: var(--text-muted); width: 24px;">#${i+1}</div>
+                                <div>
+                                    <div style="font-weight: 600;">${u.name}</div>
+                                    <div class="text-muted">${u.department}</div>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-weight: 700; color: var(--warning);">${u.rating} ⭐</div>
+                                <div class="text-muted">${u.reviewCount} reviews</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            },
+
+            renderProfile() {
+                const u = DataStore.getUser(this.currentUserId);
+                const reviews = DataStore.getReviews().filter(r => r.revieweeId === this.currentUserId);
+
+                document.getElementById('profileContent').innerHTML = `
+                    <div class="card">
+                        <div style="display: flex; gap: 16px; align-items: flex-start; margin-bottom: 20px;">
+                            <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 28px; color: white;">${u.avatar}</div>
+                            <div>
+                                <h2 style="margin-bottom: 4px;">${u.name}</h2>
+                                <p class="text-muted">${u.department} • Year ${u.year}</p>
+                                <p style="color: var(--text-secondary); margin: 8px 0;">${u.bio}</p>
+                                <div style="display: flex; gap: 16px; margin-top: 12px;">
+                                    <div>
+                                        <div style="font-weight: 700; color: var(--warning);">${u.rating || '--'}</div>
+                                        <div class="text-muted">${u.reviewCount} reviews</div>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 700; color: var(--accent-primary);">${u.sessions}</div>
+                                        <div class="text-muted">sessions</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Can Teach</h3>
+                        <div style="margin-top: 12px;">${u.canTeach.map(s => `<span class="skill-tag">${s}</span>`).join('')}</div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Wants to Learn</h3>
+                        <div style="margin-top: 12px;">${u.wantLearn.map(s => `<span class="skill-tag">${s}</span>`).join('')}</div>
+                    </div>
+
+                    ${reviews.length > 0 ? `
+                        <div class="card">
+                            <h3>Reviews</h3>
+                            ${reviews.slice(0, 3).map(r => `
+                                <div style="padding: 12px; background: var(--bg-secondary); border-radius: 8px; margin-top: 12px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                        <span style="font-weight: 600;">${DataStore.getUser(r.reviewerId).name}</span>
+                                        <span style="color: var(--warning);">★ ${r.rating}</span>
+                                    </div>
+                                    <p style="margin: 0; font-size: 13px; color: var(--text-secondary);">${r.text}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                `;
+            },
+
+            viewProfile(userId) {
+                const u = DataStore.getUser(userId);
+                const reviews = DataStore.getReviews().filter(r => r.revieweeId === userId);
+
+                const modal = document.createElement('div');
+                modal.className = 'modal-overlay active';
+                modal.onclick = () => modal.remove();
+                modal.innerHTML = `
+                    <div class="modal">
+                        <div class="modal-header">
+                            <h2>${u.name}</h2>
+                            <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button>
+                        </div>
+                        <div class="modal-body">
+                            <div style="display: flex; gap: 14px; margin-bottom: 20px;">
+                                <div style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; color: white;">${u.avatar}</div>
+                                <div>
+                                    <p class="text-muted">${u.department} • Year ${u.year}</p>
+                                    <p style="color: var(--text-secondary);">${u.bio}</p>
+                                    <div style="display: flex; gap: 16px; margin-top: 8px;">
+                                        <div>
+                                            <div style="font-weight: 700; color: var(--warning);">${u.rating}</div>
+                                            <div class="text-muted">${u.reviewCount} reviews</div>
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 700;">${u.sessions}</div>
+                                            <div class="text-muted">sessions</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <h3>Can Teach</h3>
+                            <div style="margin-bottom: 16px;">${u.canTeach.map(s => `<span class="skill-tag">${s}</span>`).join('')}</div>
+                            <h3>Wants to Learn</h3>
+                            <div>${u.wantLearn.map(s => `<span class="skill-tag">${s}</span>`).join('')}</div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-secondary" onclick="this.closest('.modal-overlay').remove()">Close</button>
+                            <button class="btn-primary" onclick="app.initiateSwapRequest('${userId}'); this.closest('.modal-overlay').remove();">Request</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            },
+
+            saveProfile() {
+                const u = DataStore.getUser(this.currentUserId);
+                u.name = document.getElementById('editName').value;
+                u.bio = document.getElementById('editBio').value;
+                u.department = document.getElementById('editDepartment').value;
+                u.year = document.getElementById('editYear').value;
+                u.canTeach = document.getElementById('editCanTeach').value.split(',').map(s => s.trim()).filter(s => s);
+                u.wantLearn = document.getElementById('editWantLearn').value.split(',').map(s => s.trim()).filter(s => s);
+
+                DataStore.saveUser(u);
+                this.showToast('Profile saved!', 'success');
+                this.closeModal();
+                this.renderProfile();
+            },
+
+            renderNotifications() {
+                const notifs = DataStore.getNotifications().filter(n => n.userId === this.currentUserId).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                document.getElementById('notificationsContainer').innerHTML = notifs.length === 0 ? '<p class="text-muted">No notifications</p>' : notifs.map(n => `
+                    <div class="card-compact" style="cursor: pointer;" onclick="app.markNotificationRead('${n.id}')">
+                        <div style="opacity: ${n.read ? 0.6 : 1};">
+                            <div style="font-weight: 600; margin-bottom: 4px;">${n.title}</div>
+                            <div class="text-muted">${n.message}</div>
+                        </div>
+                    </div>
+                `).join('');
+            },
+
+            markNotificationRead(id) {
+                DataStore.markNotificationRead(id);
+                this.renderNotifications();
+            },
+
+            renderAdmin() {
+                const users = DataStore.getUsers();
+                const reqs = DataStore.getRequests();
+                const sessions = DataStore.getSessions();
+                const credits = DataStore.getCredits();
+
+                const totalSkills = users.reduce((s, u) => s + u.canTeach.length, 0);
+                const completedSess = sessions.filter(s => s.status === 'completed').length;
+                const totalCredits = credits.reduce((s, c) => s + c.amount, 0);
+
+                document.getElementById('adminTotalStudents').textContent = users.length;
+                document.getElementById('adminActiveSwaps').textContent = reqs.filter(r => r.status === 'accepted').length;
+
+                document.getElementById('stat-total-students').textContent = users.length;
+                document.getElementById('stat-total-skills').textContent = totalSkills;
+                document.getElementById('stat-completed-sessions').textContent = completedSess;
+                document.getElementById('stat-credits-exchanged').textContent = totalCredits;
+            },
+
+            openModal(id) { document.getElementById(id).classList.add('active'); },
+            closeModal() { document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active')); },
+            switchTab(e, tabId) {
+                document.querySelectorAll('.tab-button').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                e.target.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+            },
+            showToast(msg, type = 'success') {
+                const container = document.getElementById('toastContainer');
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = msg;
+                container.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            },
+            resetDemoData() {
+                if (!confirm('Reset all data?')) return;
+                DataStore.resetData();
+                this.init();
+                this.showToast('Data reset!', 'success');
+            }
+        };
+
+        app.init();
+    </script>
+</body>
+</html>
