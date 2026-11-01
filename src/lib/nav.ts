@@ -1,0 +1,11 @@
+export type TabId =
+  | 'dashboard'
+  | 'matches'
+  | 'skills'
+  | 'requests'
+  | 'messages'
+  | 'sessions'
+  | 'credits'
+  | 'progress'
+  | 'leaderboard'
+  | 'profile'

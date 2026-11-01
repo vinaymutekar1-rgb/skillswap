@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSwap — Pitch Deck</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #070B18; --surface: #0D1220; --card: #12182A; --elevated: #171D31;
+            --border: rgba(255,255,255,.08); --text: #F5F7FB; --muted: #8E98AC;
+            --violet: #8B5CFF; --purple: #A855F7; --cyan: #22D3EE; --pink: #FF4FD8;
+            --mint: #36E0A0; --amber: #FFD166;
+        }
+        html, body { height: 100%; width: 100%; overflow: hidden; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+        .deck { position: relative; width: 100vw; height: 100vh; }
+        .slide { position: absolute; inset: 0; display: none; flex-direction: column; justify-content: center; padding: 60px 80px; background: var(--bg); opacity: 0; transition: opacity 0.4s ease; overflow: hidden; }
+        .slide.active { display: flex; opacity: 1; }
+        .slide::before { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+        .slide > * { position: relative; z-index: 1; }
+        .ambient-1::before { background: radial-gradient(ellipse at 15% 20%, rgba(139,92,255,.12) 0%, transparent 50%), radial-gradient(ellipse at 85% 80%, rgba(34,211,238,.08) 0%, transparent 45%); }
+        .ambient-2::before { background: radial-gradient(ellipse at 80% 15%, rgba(34,211,238,.14) 0%, transparent 50%), radial-gradient(ellipse at 10% 85%, rgba(139,92,255,.10) 0%, transparent 45%); }
+        .ambient-3::before { background: radial-gradient(ellipse at 50% 50%, rgba(255,79,216,.08) 0%, transparent 50%), radial-gradient(ellipse at 10% 10%, rgba(139,92,255,.10) 0%, transparent 45%); }
+        .mega { font-size: 68px; font-weight: 900; letter-spacing: -3px; line-height: 1.05; }
+        .hero { font-size: 44px; font-weight: 800; letter-spacing: -2px; line-height: 1.1; }
+        .title { font-size: 36px; font-weight: 800; letter-spacing: -1.5px; line-height: 1.15; }
+        .subtitle { font-size: 20px; font-weight: 500; color: var(--muted); line-height: 1.4; }
+        .label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); }
+        .body { font-size: 16px; font-weight: 400; line-height: 1.6; color: var(--muted); }
+        .gradient-text { background: linear-gradient(135deg, var(--violet), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .badge { display: inline-block; padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid var(--border); background: var(--card); margin-bottom: 16px; }
+        .badge-violet { border-color: rgba(139,92,255,.3); color: var(--violet); }
+        .badge-cyan { border-color: rgba(34,211,238,.3); color: var(--cyan); }
+        .badge-mint { border-color: rgba(54,224,160,.3); color: var(--mint); }
+        .badge-pink { border-color: rgba(255,79,216,.3); color: var(--pink); }
+        .badge-amber { border-color: rgba(255,209,102,.3); color: var(--amber); }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+        .divider { width: 60px; height: 3px; background: linear-gradient(90deg, var(--violet), var(--cyan)); border-radius: 2px; margin: 16px 0; }
+        .glow-violet { box-shadow: 0 0 24px rgba(139,92,255,.12); border-color: rgba(139,92,255,.25); }
+        .glow-cyan { box-shadow: 0 0 24px rgba(34,211,238,.10); border-color: rgba(34,211,238,.25); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+        .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+        .num { font-size: 42px; font-weight: 900; line-height: 1; }
+        .num-sm { font-size: 28px; font-weight: 900; line-height: 1; }
+        .num-xs { font-size: 20px; font-weight: 800; line-height: 1; }
+        .eq-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
+        .source { font-size: 10px; color: var(--muted); opacity: 0.6; margin-top: 12px; }
+        .assumption-label { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; background: rgba(255,209,102,.1); color: var(--amber); border: 1px solid rgba(255,209,102,.2); margin-top: 8px; }
+        .actual-label { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; background: rgba(54,224,160,.1); color: var(--mint); border: 1px solid rgba(54,224,160,.2); margin-top: 8px; }
+        .funnel-step { text-align: center; padding: 12px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; }
+        .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .compare-table th { text-align: left; padding: 10px 14px; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); color: var(--muted); }
+        .compare-table th.hl { color: var(--violet); }
+        .compare-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--muted); }
+        .compare-table td.hl { color: var(--text); background: rgba(139,92,255,.05); }
+        .compare-table .check { color: var(--mint); font-weight: 700; }
+        .compare-table .cross { opacity: 0.35; }
+        .feature-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
+        .feature-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; margin: 0 auto 10px; }
+        .icon-violet { background: rgba(139,92,255,.15); border: 1px solid rgba(139,92,255,.3); }
+        .icon-cyan { background: rgba(34,211,238,.15); border: 1px solid rgba(34,211,238,.3); }
+        .icon-mint { background: rgba(54,224,160,.15); border: 1px solid rgba(54,224,160,.3); }
+        .icon-pink { background: rgba(255,79,216,.15); border: 1px solid rgba(255,79,216,.3); }
+        .icon-amber { background: rgba(255,209,102,.15); border: 1px solid rgba(255,209,102,.3); }
+        .student-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; text-align: center; }
+        .match-score-badge { font-size: 26px; font-weight: 900; background: linear-gradient(135deg, var(--violet), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .skill-tag { display: inline-block; padding: 4px 10px; border-radius: 16px; font-size: 11px; font-weight: 600; margin: 2px; }
+        .tag-teach { background: rgba(54,224,160,.12); color: var(--mint); border: 1px solid rgba(54,224,160,.25); }
+        .tag-learn { background: rgba(255,79,216,.12); color: var(--pink); border: 1px solid rgba(255,79,216,.25); }
+        .phase-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 22px; position: relative; }
+        .phase-num { font-size: 44px; font-weight: 900; opacity: 0.10; position: absolute; top: 10px; right: 14px; }
+        .pillar-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; text-align: center; }
+        .timeline-item { display: flex; gap: 14px; align-items: flex-start; padding: 10px 0; }
+        .timeline-dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+        .vision-word { text-align: center; }
+        .vision-word .vw-icon { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; margin: 0 auto 10px; }
+        .sdg-badge { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; font-size: 13px; font-weight: 600; }
+        .bar-chart { display: flex; align-items: flex-end; gap: 16px; height: 140px; padding: 0 20px; }
+        .bar { flex: 1; border-radius: 6px 6px 0 0; position: relative; transition: all 0.3s; min-width: 60px; }
+        .bar-label { position: absolute; bottom: -24px; left: 50%; transform: translateX(-50%); font-size: 11px; font-weight: 700; white-space: nowrap; }
+        .bar-value { position: absolute; top: -28px; left: 50%; transform: translateX(-50%); font-size: 14px; font-weight: 800; white-space: nowrap; }
+        /* NAV */
+        .nav-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; background: rgba(13,18,32,.92); border: 1px solid var(--border); border-radius: 12px; padding: 8px 18px; backdrop-filter: blur(12px); z-index: 100; }
+        .nav-btn { background: none; border: 1px solid var(--border); color: var(--text); width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+        .nav-btn:hover { background: var(--elevated); border-color: var(--violet); }
+        .slide-counter { font-size: 12px; font-weight: 600; color: var(--muted); min-width: 50px; text-align: center; }
+        .progress-bar { position: fixed; top: 0; left: 0; height: 2px; background: linear-gradient(90deg, var(--violet), var(--cyan)); z-index: 100; transition: width 0.3s ease; }
+        .speaker-notes { position: fixed; bottom: 74px; left: 50%; transform: translateX(-50%); max-width: 680px; width: 90%; background: rgba(13,18,32,.95); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; font-size: 12px; color: var(--muted); line-height: 1.5; z-index: 99; display: none; backdrop-filter: blur(12px); }
+        .speaker-notes.visible { display: block; }
+        .notes-toggle { position: fixed; bottom: 20px; right: 20px; background: var(--card); border: 1px solid var(--border); color: var(--muted); padding: 6px 10px; border-radius: 8px; font-size: 11px; cursor: pointer; z-index: 100; font-family: inherit; transition: all 0.2s; }
+        .notes-toggle:hover { border-color: var(--violet); color: var(--text); }
+    </style>
+</head>
+<body>
+    <div class="deck" id="deck">
+
+        <!-- SLIDE 1: TITLE -->
+        <div class="slide" style="justify-content:center; align-items:center; text-align:center;" data-notes="Welcome. I'm presenting SkillSwap — a hyperlocal skill exchange platform for college students. Tagline: Your next skill is already on campus.">
+            <div class="ambient-1"></div>
+            <div class="badge badge-violet" style="margin-bottom: 24px;">Eureka! Pitch Deck</div>
+            <div class="mega" style="margin-bottom: 16px;">Skill<span class="gradient-text">Swap</span></div>
+            <div class="subtitle" style="font-size: 28px; font-weight: 400; color: var(--muted); margin-bottom: 28px;">Your next skill is already on campus.</div>
+            <div class="divider" style="margin: 0 auto 20px;"></div>
+            <div style="font-size: 14px; color: var(--muted);">Hyperlocal Skill Exchange Platform for College Students</div>
+            <div style="position:absolute; bottom:36px; left:0; right:0; text-align:center;">
+                <div style="display:flex; justify-content:center; gap:6px; margin-bottom:10px;">
+                    <div style="width:7px; height:7px; border-radius:50%; background:var(--violet);"></div>
+                    <div style="width:7px; height:7px; border-radius:50%; background:var(--cyan);"></div>
+                    <div style="width:7px; height:7px; border-radius:50%; background:var(--pink);"></div>
+                </div>
+                <div class="label" style="font-size:10px;">Learn from peers. Teach what you know. Grow together.</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: PROBLEM -->
+        <div class="slide" data-notes="Every campus has talented students who can't find the right people to learn from. Three problems: expensive courses, hidden talent, no campus-specific platform.">
+            <div class="ambient-2"></div>
+            <div class="badge badge-violet">The Problem</div>
+            <div class="hero" style="margin-bottom: 36px; max-width: 680px;">Every campus is full of skills. But students don't know who to ask.</div>
+            <div class="grid-3" style="margin-bottom: 28px;">
+                <div class="card" style="border-left: 3px solid var(--pink);"><div style="font-size:24px; margin-bottom:10px; font-weight:900; color:var(--muted); opacity:.3;">01</div><h3 style="font-size:15px; margin-bottom:6px;">Expensive Dependency</h3><p class="body" style="font-size:13px;">Students need skills but rely on paid courses they can't afford.</p></div>
+                <div class="card" style="border-left: 3px solid var(--violet);"><div style="font-size:24px; margin-bottom:10px; font-weight:900; color:var(--muted); opacity:.3;">02</div><h3 style="font-size:15px; margin-bottom:6px;">Hidden Talent</h3><p class="body" style="font-size:13px;">Students have valuable skills but no structured way to teach peers.</p></div>
+                <div class="card" style="border-left: 3px solid var(--cyan);"><div style="font-size:24px; margin-bottom:10px; font-weight:900; color:var(--muted); opacity:.3;">03</div><h3 style="font-size:15px; margin-bottom:6px;">No Campus Platform</h3><p class="body" style="font-size:13px;">Existing platforms are too broad. None designed for campus exchange.</p></div>
+            </div>
+            <div class="card" style="background:var(--surface); text-align:center; padding:20px;">
+                <p class="body" style="font-size:14px; max-width:560px; margin:0 auto;"><span style="color:var(--mint); font-weight:600;">Student A</span> knows Python but needs Public Speaking. <span style="color:var(--pink); font-weight:600;">Student B</span> knows Public Speaking but needs Python.<br><strong style="color:var(--text);">They're on the same campus. They just don't know each other.</strong></p>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: INSIGHT -->
+        <div class="slide" data-notes="Key insight: the solution is already inside the campus. Every student can be both learner and mentor. SkillSwap converts hidden campus knowledge into a structured peer-learning network.">
+            <div class="ambient-1"></div>
+            <div class="badge badge-cyan">The Insight</div>
+            <div class="hero" style="margin-bottom: 20px; max-width: 680px;">The solution is already inside the campus.</div>
+            <div style="font-size:26px; font-weight:700; margin-bottom: 36px; max-width: 620px;">"Every student can be both a <span style="color:var(--mint);">learner</span> and a <span style="color:var(--violet);">mentor</span>."</div>
+            <div class="card" style="padding: 24px; max-width: 680px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                    <div style="text-align:center;"><div class="feature-icon icon-violet" style="font-size:20px;">👥</div><div style="font-size:12px; font-weight:600;">Students</div></div>
+                    <div style="color:var(--violet);">→</div>
+                    <div style="text-align:center;"><div class="feature-icon icon-cyan" style="font-size:20px;">💡</div><div style="font-size:12px; font-weight:600;">Skills</div></div>
+                    <div style="color:var(--cyan);">→</div>
+                    <div style="text-align:center;"><div class="feature-icon icon-mint" style="font-size:20px;">✨</div><div style="font-size:12px; font-weight:600;">Matches</div></div>
+                    <div style="color:var(--pink);">→</div>
+                    <div style="text-align:center;"><div class="feature-icon icon-pink" style="font-size:20px;">🔄</div><div style="font-size:12px; font-weight:600;">Exchange</div></div>
+                    <div style="color:var(--mint);">→</div>
+                    <div style="text-align:center;"><div class="feature-icon icon-violet" style="font-size:20px;">📈</div><div style="font-size:12px; font-weight:600;">Growth</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: SOLUTION -->
+        <div class="slide" data-notes="Meet SkillSwap. Three steps: List your skills, Match with compatible students, Exchange knowledge. Free, mutual, campus-focused.">
+            <div class="ambient-3"></div>
+            <div class="badge badge-mint">The Solution</div>
+            <div class="hero" style="margin-bottom: 28px;">Meet <span class="gradient-text">SkillSwap</span>.</div>
+            <div class="grid-3" style="max-width: 860px;">
+                <div class="card" style="text-align:center; border-top:3px solid var(--violet);"><div class="label" style="color:var(--violet); margin-bottom:10px;">Step 1</div><div style="font-size:28px; font-weight:900; margin-bottom:6px;">LIST</div><p class="body" style="font-size:13px;">Add skills you can teach and skills you want to learn.</p></div>
+                <div class="card" style="text-align:center; border-top:3px solid var(--cyan);"><div class="label" style="color:var(--cyan); margin-bottom:10px;">Step 2</div><div style="font-size:28px; font-weight:900; margin-bottom:6px;">MATCH</div><p class="body" style="font-size:13px;">Find compatible students based on mutual skill needs.</p></div>
+                <div class="card" style="text-align:center; border-top:3px solid var(--mint);"><div class="label" style="color:var(--mint); margin-bottom:10px;">Step 3</div><div style="font-size:28px; font-weight:900; margin-bottom:6px;">EXCHANGE</div><p class="body" style="font-size:13px;">Chat, schedule, learn, teach, and grow together.</p></div>
+            </div>
+            <div style="margin-top:28px; text-align:center;">
+                <div style="display:inline-flex; gap:14px; align-items:center; padding:14px 22px; background:var(--card); border:1px solid var(--border); border-radius:12px; font-size:14px;">
+                    <span style="font-weight:700; color:var(--violet);">LIST</span><span style="color:var(--muted);">→</span><span style="font-weight:700; color:var(--cyan);">MATCH</span><span style="color:var(--muted);">→</span><span style="font-weight:700; color:var(--pink);">EXCHANGE</span><span style="color:var(--muted);">→</span><span style="font-weight:700; color:var(--mint);">GROW</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: HOW IT WORKS -->
+        <div class="slide" data-notes="Core product flow. Arjun wants Public Speaking, Karan wants Python. SkillSwap finds 92% match. Request, chat, schedule, complete, earn credits, track progress.">
+            <div class="ambient-2"></div>
+            <div class="badge badge-violet">How It Works</div>
+            <div class="hero" style="margin-bottom: 24px; font-size: 36px;">The Product Flow</div>
+            <div style="display:flex; gap:20px; align-items:stretch;">
+                <div style="flex:0 0 180px;"><div class="student-card"><div class="feature-icon icon-violet" style="margin:0 auto 6px; font-size:16px; width:40px; height:40px;">A</div><div style="font-weight:700; font-size:14px;">Arjun</div><div style="font-size:11px; color:var(--muted); margin-bottom:10px;">Computer Science</div><div class="skill-tag tag-teach">Python</div><div class="skill-tag tag-teach">DSA</div><div class="skill-tag tag-learn">Public Speaking</div></div></div>
+                <div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:4px;">
+                    <div class="match-score-badge">92%</div>
+                    <div class="label" style="font-size:10px;">SKILL MATCH</div>
+                    <div style="display:flex; flex-direction:column; gap:4px; margin-top:10px;">
+                        <div style="font-size:12px; color:var(--muted);">✓ <span style="color:var(--mint);">Mutual skill exchange</span></div>
+                        <div style="font-size:12px; color:var(--muted);">✓ <span style="color:var(--mint);">Evening availability</span></div>
+                        <div style="font-size:12px; color:var(--muted);">✓ <span style="color:var(--mint);">Same campus</span></div>
+                    </div>
+                </div>
+                <div style="flex:0 0 180px;"><div class="student-card"><div class="feature-icon icon-cyan" style="margin:0 auto 6px; font-size:16px; width:40px; height:40px;">K</div><div style="font-weight:700; font-size:14px;">Karan</div><div style="font-size:11px; color:var(--muted); margin-bottom:10px;">Business / MBA</div><div class="skill-tag tag-teach">Public Speaking</div><div class="skill-tag tag-teach">Excel</div><div class="skill-tag tag-learn">Python</div></div></div>
+            </div>
+            <div style="margin-top:20px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+                <div style="padding:7px 12px; background:var(--card); border:1px solid var(--border); border-radius:8px; font-size:11px; font-weight:600;">Request Swap</div>
+                <div style="padding:7px 12px; background:var(--card); border:1px solid var(--border); border-radius:8px; font-size:11px; font-weight:600;">Chat</div>
+                <div style="padding:7px 12px; background:var(--card); border:1px solid var(--border); border-radius:8px; font-size:11px; font-weight:600;">Schedule</div>
+                <div style="padding:7px 12px; background:var(--card); border:1px solid var(--border); border-radius:8px; font-size:11px; font-weight:600;">Complete</div>
+                <div style="padding:7px 12px; background:var(--card); border:1px solid var(--border); border-radius:8px; font-size:11px; font-weight:600;">Earn Credits</div>
+                <div style="padding:7px 12px; background:var(--card); border:1px solid var(--border); border-radius:8px; font-size:11px; font-weight:600;">Track Progress</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: PRODUCT / MVP -->
+        <div class="slide" data-notes="Nine core features that make SkillSwap a complete campus skill exchange platform. Each is fully functional in our working prototype.">
+            <div class="ambient-1"></div>
+            <div class="badge badge-cyan">Product</div>
+            <div class="hero" style="margin-bottom: 24px; font-size: 36px;">More than a skill board.</div>
+            <div class="grid-3">
+                <div class="feature-card"><div class="feature-icon icon-violet">👤</div><h3 style="font-size:14px; margin-bottom:3px;">Student Profiles</h3><p style="font-size:11px; color:var(--muted);">Skills, availability, ratings</p><div class="actual-label">BUILT</div></div>
+                <div class="feature-card"><div class="feature-icon icon-cyan">🎯</div><h3 style="font-size:14px; margin-bottom:3px;">Smart Matching</h3><p style="font-size:11px; color:var(--muted);">Compatibility scoring (0–100%)</p><div class="actual-label">BUILT</div></div>
+                <div class="feature-card"><div class="feature-icon icon-mint">📬</div><h3 style="font-size:14px; margin-bottom:3px;">Exchange Requests</h3><p style="font-size:11px; color:var(--muted);">Request, accept, track swaps</p><div class="actual-label">BUILT</div></div>
+                <div class="feature-card"><div class="feature-icon icon-pink">💬</div><h3 style="font-size:14px; margin-bottom:3px;">Chat</h3><p style="font-size:11px; color:var(--muted);">In-app messaging</p><div class="actual-label">BUILT</div></div>
+                <div class="feature-card"><div class="feature-icon icon-violet">📅</div><h3 style="font-size:14px; margin-bottom:3px;">Scheduling</h3><p style="font-size:11px; color:var(--muted);">Calendar-based sessions</p><div class="actual-label">BUILT</div></div>
+                <div class="feature-card"><div class="feature-icon icon-cyan">💎</div><h3 style="font-size:14px; margin-bottom:3px;">Learning Credits</h3><p style="font-size:11px; color:var(--muted);">Reward system</p><div class="actual-label">BUILT</div></div>
+                <div class="feature-card"><div class="feature-icon icon-mint">⭐</div><h3 style="font-size:14px; margin-bottom:3px;">Reviews</h3><p style="font-size:11px; color:var(--muted);">Post-session feedback</p><div class="actual-label">BUILT</div></div>
+                <div class="feature-card"><div class="feature-icon icon-pink">✓</div><h3 style="font-size:14px; margin-bottom:3px;">Verification</h3><p style="font-size:11px; color:var(--muted);">Skill credibility</p><div class="actual-label">BUILT</div></div>
+                <div class="feature-card"><div class="feature-icon icon-violet">📈</div><h3 style="font-size:14px; margin-bottom:3px;">Progress</h3><p style="font-size:11px; color:var(--muted);">Milestones & analytics</p><div class="actual-label">BUILT</div></div>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: WHY DIFFERENT -->
+        <div class="slide" data-notes="SkillSwap is fundamentally different from existing platforms. Campus-focused, peer-to-peer, mutual exchange. No one else does this.">
+            <div class="ambient-3"></div>
+            <div class="badge badge-pink">Differentiation</div>
+            <div class="hero" style="margin-bottom: 24px; font-size: 32px;">Not another social network. Not another tutoring platform.</div>
+            <div class="card" style="padding:0; overflow:hidden;">
+                <table class="compare-table">
+                    <thead><tr><th>Feature</th><th>Social</th><th>Online Learning</th><th>Tutoring</th><th class="hl">SkillSwap</th></tr></thead>
+                    <tbody>
+                        <tr><td>Campus-focused</td><td class="cross">—</td><td class="cross">—</td><td class="cross">—</td><td class="hl check">✓</td></tr>
+                        <tr><td>Peer-to-peer</td><td class="cross">—</td><td class="cross">—</td><td class="cross">—</td><td class="hl check">✓</td></tr>
+                        <tr><td>Mutual exchange</td><td class="cross">—</td><td class="cross">—</td><td class="cross">—</td><td class="hl check">✓</td></tr>
+                        <tr><td>Free for students</td><td class="cross">—</td><td class="cross">—</td><td class="cross">—</td><td class="hl check">✓</td></tr>
+                        <tr><td>Availability matching</td><td class="cross">—</td><td class="cross">—</td><td>Partial</td><td class="hl check">✓</td></tr>
+                        <tr><td>Skill compatibility</td><td class="cross">—</td><td class="cross">—</td><td class="cross">—</td><td class="hl check">✓</td></tr>
+                        <tr><td>Session workflow</td><td class="cross">—</td><td class="cross">—</td><td>Basic</td><td class="hl check">✓</td></tr>
+                        <tr><td>Learning credits</td><td class="cross">—</td><td class="cross">—</td><td class="cross">—</td><td class="hl check">✓</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: USP -->
+        <div class="slide" data-notes="Four pillars: Hyperlocal campus focus, Mutual exchange model, Smart matching algorithm, Community loop that drives retention.">
+            <div class="ambient-2"></div>
+            <div class="badge badge-violet">USP</div>
+            <div class="hero" style="margin-bottom: 32px; max-width: 680px; font-size: 38px;">Turn every student into both a <span style="color:var(--mint);">teacher</span> and a <span style="color:var(--violet);">learner</span>.</div>
+            <div class="grid-4">
+                <div class="pillar-card"><div class="feature-icon icon-violet" style="font-size:20px;">📍</div><h3 style="font-size:15px; margin-bottom:4px;">Hyperlocal</h3><p style="font-size:12px; color:var(--muted);">Built for campus communities</p></div>
+                <div class="pillar-card"><div class="feature-icon icon-cyan" style="font-size:20px;">🔄</div><h3 style="font-size:15px; margin-bottom:4px;">Mutual Exchange</h3><p style="font-size:12px; color:var(--muted);">Teach one, learn another</p></div>
+                <div class="pillar-card"><div class="feature-icon icon-mint" style="font-size:20px;">🎯</div><h3 style="font-size:15px; margin-bottom:4px;">Smart Matching</h3><p style="font-size:12px; color:var(--muted);">Skill overlap + preferences</p></div>
+                <div class="pillar-card"><div class="feature-icon icon-pink" style="font-size:20px;">♻️</div><h3 style="font-size:15px; margin-bottom:4px;">Community Loop</h3><p style="font-size:12px; color:var(--muted);">Match → Learn → Grow</p></div>
+            </div>
+        </div>
+
+        <!-- SLIDE 9: MARKET SIZE (UPGRADED) -->
+        <div class="slide" data-notes="India has 43.3 million higher-education enrollments across 45,473 colleges. Our TAM assumes ₹60k/year institutional subscription. SAM targets 5,000 colleges. SOM targets 300 in Year 3. All illustrative assumptions.">
+            <div class="ambient-1"></div>
+            <div class="badge badge-cyan">Market Size</div>
+            <div class="hero" style="margin-bottom: 24px; font-size: 34px;">A massive campus-first opportunity.</div>
+            <div class="grid-2" style="max-width: 880px;">
+                <div>
+                    <div class="card glow-cyan" style="text-align:center; margin-bottom:16px;">
+                        <div class="num" style="color:var(--cyan); margin-bottom:4px;">43.3M</div>
+                        <div style="font-size:13px; font-weight:600;">Higher-education enrollments</div>
+                        <div style="font-size:12px; font-weight:600; color:var(--violet); margin-top:4px;">45,473 registered colleges</div>
+                        <div class="source">Source: AISHE 2021–22, Ministry of Education, Government of India</div>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <div class="eq-card" style="flex:1;"><div class="num-sm" style="color:var(--violet);">₹2,728 Cr</div><div style="font-size:11px; color:var(--muted);">TAM / year</div><div class="assumption-label">Illustrative</div></div>
+                        <div class="eq-card" style="flex:1;"><div class="num-sm" style="color:var(--cyan);">₹300 Cr</div><div style="font-size:11px; color:var(--muted);">SAM / year</div><div class="assumption-label">Illustrative</div></div>
+                        <div class="eq-card" style="flex:1;"><div class="num-sm" style="color:var(--mint);">₹18 Cr</div><div style="font-size:11px; color:var(--muted);">SOM / year</div><div class="assumption-label">Illustrative</div></div>
+                    </div>
+                    <div class="source" style="text-align:center;">Institutional TAM at ₹60k/year pricing per college</div>
+                </div>
+                <div>
+                    <div class="label" style="margin-bottom:12px;">Market Funnel</div>
+                    <div class="funnel-step" style="margin-bottom:8px; border-left:3px solid var(--violet);"><div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-weight:700; font-size:14px;">45,473 colleges</span><span style="font-size:11px; color:var(--muted);">TAM</span></div></div>
+                    <div style="text-align:center; color:var(--muted); font-size:11px; padding:4px 0;">↓</div>
+                    <div class="funnel-step" style="margin-bottom:8px; border-left:3px solid var(--cyan);"><div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-weight:700; font-size:14px;">5,000 target colleges</span><span style="font-size:11px; color:var(--muted);">SAM</span></div></div>
+                    <div style="text-align:center; color:var(--muted); font-size:11px; padding:4px 0;">↓</div>
+                    <div class="funnel-step" style="border-left:3px solid var(--mint);"><div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-weight:700; font-size:14px;">300 obtainable colleges</span><span style="font-size:11px; color:var(--muted);">SOM</span></div></div>
+                    <div class="assumption-label" style="display:block; text-align:center; margin-top:12px;">Illustrative assumptions — to be validated</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 10: CAMPUS UNIT MATH -->
+        <div class="slide" data-notes="What does one campus look like? 5,000 students → 1,500 sign up → 600 monthly active → 120 swappers → 240 sessions/month → 240 learning hours exchanged. This proves network value before national scale. All illustrative.">
+            <div class="ambient-3"></div>
+            <div class="badge badge-violet">Campus Unit Economics</div>
+            <div class="hero" style="margin-bottom: 20px; font-size: 34px;">What does one campus look like?</div>
+            <div class="grid-2" style="max-width: 880px;">
+                <div>
+                    <div class="card" style="padding:24px;">
+                        <div class="label" style="margin-bottom:16px;">Illustrative Pilot Campus Model</div>
+                        <div style="display:flex; flex-direction:column; gap:8px;">
+                            <div style="display:flex; align-items:center; gap:10px; padding:8px 12px; background:var(--elevated); border-radius:8px;"><span class="num-xs" style="color:var(--cyan); min-width:50px;">5,000</span><span style="font-size:13px;">Students on campus</span></div>
+                            <div style="text-align:center; color:var(--muted); font-size:10px;">× 30% sign-up</div>
+                            <div style="display:flex; align-items:center; gap:10px; padding:8px 12px; background:var(--elevated); border-radius:8px;"><span class="num-xs" style="color:var(--violet); min-width:50px;">1,500</span><span style="font-size:13px;">Registered students</span></div>
+                            <div style="text-align:center; color:var(--muted); font-size:10px;">× 40% monthly active</div>
+                            <div style="display:flex; align-items:center; gap:10px; padding:8px 12px; background:var(--elevated); border-radius:8px;"><span class="num-xs" style="color:var(--pink); min-width:50px;">600</span><span style="font-size:13px;">Monthly active users</span></div>
+                            <div style="text-align:center; color:var(--muted); font-size:10px;">× 20% active in exchanges</div>
+                            <div style="display:flex; align-items:center; gap:10px; padding:8px 12px; background:var(--elevated); border-radius:8px;"><span class="num-xs" style="color:var(--mint); min-width:50px;">120</span><span style="font-size:13px;">Active swappers</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="card glow-violet" style="text-align:center; padding:24px; margin-bottom:12px;">
+                        <div class="label" style="margin-bottom:8px;">Sessions / month / campus</div>
+                        <div class="num" style="color:var(--violet); margin-bottom:4px;">240</div>
+                        <div style="font-size:13px; color:var(--muted);">120 swappers × 2 sessions each</div>
+                    </div>
+                    <div class="card glow-cyan" style="text-align:center; padding:24px;">
+                        <div class="label" style="margin-bottom:8px;">Learning hours exchanged</div>
+                        <div class="num" style="color:var(--cyan); margin-bottom:4px;">240 hrs</div>
+                        <div style="font-size:13px; color:var(--muted);">per month · per campus · avg 60 min</div>
+                    </div>
+                    <div class="assumption-label" style="display:block; text-align:center; margin-top:10px;">Illustrative campus model — validation target</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 11: BUSINESS MODEL MATH -->
+        <div class="slide" data-notes="Students stay free forever. Revenue comes from institutional subscriptions at ₹60k/year per college. That covers: dashboard, analytics, moderation, skill discovery, reporting. At 300 colleges that's ₹1.8Cr ARR.">
+            <div class="ambient-2"></div>
+            <div class="badge badge-mint">Business Model</div>
+            <div class="hero" style="margin-bottom: 24px; font-size: 34px;">Free for students. Monetized through institutions.</div>
+            <div class="grid-2" style="max-width: 880px;">
+                <div>
+                    <div class="grid-2" style="margin-bottom:16px;">
+                        <div class="card" style="text-align:center; border:2px solid var(--mint);">
+                            <div class="label" style="color:var(--mint); margin-bottom:6px;">Student</div>
+                            <div class="num" style="color:var(--mint);">₹0</div>
+                            <div style="font-size:11px; color:var(--muted);">Always free</div>
+                        </div>
+                        <div class="card glow-violet" style="text-align:center; border:2px solid rgba(139,92,255,.4);">
+                            <div class="label" style="color:var(--violet); margin-bottom:6px;">College</div>
+                            <div class="num" style="color:var(--violet);">₹60K</div>
+                            <div style="font-size:11px; color:var(--muted);">/ year</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="label" style="margin-bottom:10px;">What the college gets</div>
+                        <div style="display:flex; flex-direction:column; gap:6px;">
+                            <div style="font-size:12px; color:var(--muted);">✓ Institution dashboard</div>
+                            <div style="font-size:12px; color:var(--muted);">✓ Verified student community</div>
+                            <div style="font-size:12px; color:var(--muted);">✓ Analytics & moderation tools</div>
+                            <div style="font-size:12px; color:var(--muted);">✓ Campus-wide skill discovery</div>
+                            <div style="font-size:12px; color:var(--muted);">✓ Program management & reporting</div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="label" style="margin-bottom:12px;">Revenue Scenarios</div>
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        <div class="card" style="padding:14px; display:flex; justify-content:space-between; align-items:center;"><div><span style="font-weight:700; font-size:14px;">25 colleges</span><span style="font-size:12px; color:var(--muted);"> × ₹60K</span></div><span class="num-xs" style="color:var(--violet);">₹15L ARR</span></div>
+                        <div class="card" style="padding:14px; display:flex; justify-content:space-between; align-items:center;"><div><span style="font-weight:700; font-size:14px;">100 colleges</span><span style="font-size:12px; color:var(--muted);"> × ₹60K</span></div><span class="num-xs" style="color:var(--cyan);">₹60L ARR</span></div>
+                        <div class="card glow-violet" style="padding:14px; display:flex; justify-content:space-between; align-items:center;"><div><span style="font-weight:700; font-size:14px;">300 colleges</span><span style="font-size:12px; color:var(--muted);"> × ₹60K</span></div><span class="num-xs" style="color:var(--pink);">₹1.8Cr ARR</span></div>
+                        <div class="card" style="padding:14px; display:flex; justify-content:space-between; align-items:center;"><div><span style="font-weight:700; font-size:14px;">1,000 colleges</span><span style="font-size:12px; color:var(--muted);"> × ₹60K</span></div><span class="num-xs" style="color:var(--mint);">₹6Cr ARR</span></div>
+                    </div>
+                    <div class="assumption-label" style="display:block; text-align:center; margin-top:10px;">Illustrative revenue at ₹60k annual college subscription</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 12: UNIT ECONOMICS -->
+        <div class="slide" data-notes="Per-college unit economics: ₹60K ACV, 75% gross margin, ₹45K gross profit, ₹15K CAC. That's 4-month payback and 9x LTV:CAC over 3 years. All target economics to be validated post-pilot.">
+            <div class="ambient-1"></div>
+            <div class="badge badge-amber">Unit Economics</div>
+            <div class="hero" style="margin-bottom: 20px; font-size: 34px;">Can one college be profitable?</div>
+            <div class="grid-2" style="max-width: 880px;">
+                <div>
+                    <div class="card" style="padding:20px;">
+                        <div class="label" style="margin-bottom:16px;">Per-College Economics</div>
+                        <div style="display:flex; flex-direction:column; gap:10px;">
+                            <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border);"><span style="font-size:13px;">Annual Contract Value (ACV)</span><span style="font-weight:700;">₹60,000</span></div>
+                            <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border);"><span style="font-size:13px;">Target Gross Margin</span><span style="font-weight:700; color:var(--mint);">75%</span></div>
+                            <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border);"><span style="font-size:13px;">Annual Gross Profit</span><span style="font-weight:700; color:var(--violet);">₹45,000</span></div>
+                            <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border);"><span style="font-size:13px;">Target CAC</span><span style="font-weight:700;">₹15,000</span></div>
+                            <div style="display:flex; justify-content:space-between; padding:8px 0;"><span style="font-size:13px;">CAC Payback</span><span style="font-weight:700; color:var(--cyan);">~4 months</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="card glow-violet" style="text-align:center; padding:20px; margin-bottom:12px;">
+                        <div class="label" style="margin-bottom:6px;">3-Year LTV : CAC</div>
+                        <div class="num" style="margin-bottom:4px;"><span style="color:var(--violet);">9×</span></div>
+                        <div style="font-size:12px; color:var(--muted);">₹1,35,000 LTV ÷ ₹15,000 CAC</div>
+                    </div>
+                    <div class="card" style="text-align:center; padding:16px;">
+                        <div style="display:flex; justify-content:space-around;">
+                            <div><div style="font-size:20px; font-weight:900; color:var(--cyan);">₹1.8L</div><div style="font-size:10px; color:var(--muted);">3Y Revenue</div></div>
+                            <div><div style="font-size:20px; font-weight:900; color:var(--mint);">₹1.35L</div><div style="font-size:10px; color:var(--muted);">3Y Gross Profit</div></div>
+                            <div><div style="font-size:20px; font-weight:900; color:var(--pink);">~4 mo</div><div style="font-size:10px; color:var(--muted);">Payback</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="assumption-label" style="margin-top:8px;">Target unit economics — to be validated after pilot</div>
+        </div>
+
+        <!-- SLIDE 13: 3-YEAR SCALE -->
+        <div class="slide" data-notes="Scale through colleges, not paid student acquisition. Year 1: 25 colleges, ₹15L. Year 2: 100 colleges, ₹60L. Year 3: 300 colleges, ₹1.8Cr. Subscription-only. Sponsorship is upside not included.">
+            <div class="ambient-3"></div>
+            <div class="badge badge-violet">Revenue Scale</div>
+            <div class="hero" style="margin-bottom: 20px; font-size: 34px;">Scale through colleges, not paid student acquisition.</div>
+            <div class="grid-3" style="max-width: 860px; margin-bottom: 16px;">
+                <div class="card" style="text-align:center; border-top:3px solid var(--violet);">
+                    <div class="label" style="color:var(--violet); margin-bottom:8px;">Year 1</div>
+                    <div class="num-xs" style="margin-bottom:4px;">25 colleges</div>
+                    <div style="font-size:11px; color:var(--muted); margin-bottom:12px;">× ₹60K / year</div>
+                    <div class="num" style="color:var(--violet); font-size:36px;">₹15L</div>
+                    <div class="label" style="margin-top:4px;">ARR</div>
+                </div>
+                <div class="card" style="text-align:center; border-top:3px solid var(--cyan);">
+                    <div class="label" style="color:var(--cyan); margin-bottom:8px;">Year 2</div>
+                    <div class="num-xs" style="margin-bottom:4px;">100 colleges</div>
+                    <div style="font-size:11px; color:var(--muted); margin-bottom:12px;">× ₹60K / year</div>
+                    <div class="num" style="color:var(--cyan); font-size:36px;">₹60L</div>
+                    <div class="label" style="margin-top:4px;">ARR</div>
+                </div>
+                <div class="card glow-violet" style="text-align:center; border-top:3px solid var(--pink);">
+                    <div class="label" style="color:var(--pink); margin-bottom:8px;">Year 3</div>
+                    <div class="num-xs" style="margin-bottom:4px;">300 colleges</div>
+                    <div style="font-size:11px; color:var(--muted); margin-bottom:12px;">× ₹60K / year</div>
+                    <div class="num" style="color:var(--pink); font-size:36px;">₹1.8Cr</div>
+                    <div class="label" style="margin-top:4px;">ARR</div>
+                </div>
+            </div>
+            <div class="card" style="padding:14px; max-width:860px;">
+                <div style="display:flex; align-items:center; gap:16px;">
+                    <div style="flex:1; display:flex; align-items:flex-end; gap:24px; height:80px; padding:0 20px;">
+                        <div style="width:25%; background:linear-gradient(180deg, var(--violet), rgba(139,92,255,.3)); border-radius:6px 6px 0 0; height:15%; position:relative;"><span style="position:absolute; top:-18px; left:50%; transform:translateX(-50%); font-size:13px; font-weight:800; color:var(--violet);">₹15L</span></div>
+                        <div style="width:25%; background:linear-gradient(180deg, var(--cyan), rgba(34,211,238,.3)); border-radius:6px 6px 0 0; height:50%; position:relative;"><span style="position:absolute; top:-18px; left:50%; transform:translateX(-50%); font-size:13px; font-weight:800; color:var(--cyan);">₹60L</span></div>
+                        <div style="width:25%; background:linear-gradient(180deg, var(--pink), rgba(255,79,216,.3)); border-radius:6px 6px 0 0; height:100%; position:relative;"><span style="position:absolute; top:-18px; left:50%; transform:translateX(-50%); font-size:13px; font-weight:800; color:var(--pink);">₹1.8Cr</span></div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top:10px; font-size:11px; color:var(--muted); font-style:italic;">Subscription-only model; sponsorship and premium institutional services are upside, not included.</div>
+            <div class="assumption-label">Illustrative revenue scenarios — not current traction</div>
+        </div>
+
+        <!-- SLIDE 14: BREAK-EVEN -->
+        <div class="slide" data-notes="Break-even is tied to campus count. With ₹45L annual fixed costs and ₹45K gross profit per college, we break even at 100 institutional customers. Beyond that, every college is margin-accretive.">
+            <div class="ambient-2"></div>
+            <div class="badge badge-mint">Path to Break-even</div>
+            <div class="hero" style="margin-bottom: 20px; font-size: 34px;">Break-even is tied to campus count.</div>
+            <div class="grid-2" style="max-width: 880px;">
+                <div>
+                    <div class="card" style="padding:20px;">
+                        <div class="label" style="margin-bottom:16px;">Illustrative Operating Model</div>
+                        <div style="display:flex; flex-direction:column; gap:8px;">
+                            <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border);"><span style="font-size:13px;">Annual Fixed Costs</span><span style="font-weight:700;">₹45,00,000</span></div>
+                            <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border);"><span style="font-size:13px;">Gross Profit / College</span><span style="font-weight:700; color:var(--mint);">₹45,000</span></div>
+                            <div style="display:flex; justify-content:space-between; padding:12px 0;"><span style="font-size:14px; font-weight:700;">Break-even Colleges</span><span class="num-sm" style="color:var(--violet);">100</span></div>
+                        </div>
+                    </div>
+                    <div class="source" style="text-align:center;">Illustrative break-even model — not current status</div>
+                </div>
+                <div>
+                    <div class="card" style="padding:20px;">
+                        <div class="label" style="margin-bottom:16px;">Scale Milestones</div>
+                        <div style="display:flex; flex-direction:column; gap:6px;">
+                            <div style="display:flex; align-items:center; gap:10px; padding:8px 12px; background:var(--elevated); border-radius:8px;">
+                                <span style="font-weight:700; min-width:30px; color:var(--muted);">0</span>
+                                <div style="flex:1; height:2px; background:var(--border);"></div>
+                                <span style="font-size:11px; color:var(--muted);">Pre-revenue</span>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:10px; padding:8px 12px; background:var(--elevated); border-radius:8px;">
+                                <span style="font-weight:700; min-width:30px; color:var(--cyan);">50</span>
+                                <div style="flex:1; height:2px; background:linear-gradient(90deg, var(--cyan), var(--violet));"></div>
+                                <span style="font-size:11px; color:var(--muted);">₹22.5L revenue</span>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:rgba(139,92,255,.1); border:1px solid rgba(139,92,255,.3); border-radius:8px;">
+                                <span style="font-weight:700; min-width:30px; color:var(--violet);">100</span>
+                                <div style="flex:1; height:3px; background:var(--violet); border-radius:2px; box-shadow:0 0 8px var(--violet);"></div>
+                                <span style="font-size:11px; color:var(--violet); font-weight:700;">★ BREAK-EVEN</span>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:10px; padding:8px 12px; background:var(--elevated); border-radius:8px;">
+                                <span style="font-weight:700; min-width:30px; color:var(--pink);">300</span>
+                                <div style="flex:1; height:2px; background:linear-gradient(90deg, var(--violet), var(--pink));"></div>
+                                <span style="font-size:11px; color:var(--pink); font-weight:700;">₹1.8Cr ARR</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 15: INVESTOR SCORECARD -->
+        <div class="slide" data-notes="Why the model can scale: 5 quantitative drivers. Free students, ₹60K college contract, 45K addressable colleges, 9x LTV:CAC, break-even at 100 colleges. Next step: validate → prove campus liquidity → convert institutions → scale network.">
+            <div class="ambient-1"></div>
+            <div class="badge badge-amber">Investor Scorecard</div>
+            <div class="hero" style="margin-bottom: 24px; font-size: 34px;">Why the model can scale.</div>
+            <div class="grid-5" style="max-width: 920px; margin-bottom: 28px;">
+                <div class="card" style="text-align:center; padding:16px;"><div class="num" style="color:var(--mint); font-size:32px;">₹0</div><div style="font-size:11px; color:var(--muted); margin-top:6px;">Student price</div></div>
+                <div class="card" style="text-align:center; padding:16px;"><div class="num" style="color:var(--violet); font-size:32px;">₹60K</div><div style="font-size:11px; color:var(--muted); margin-top:6px;">College contract / yr</div><div class="assumption-label" style="margin-top:6px;">Target</div></div>
+                <div class="card" style="text-align:center; padding:16px;"><div class="num" style="color:var(--cyan); font-size:28px;">45,473</div><div style="font-size:11px; color:var(--muted); margin-top:6px;">Addressable colleges</div></div>
+                <div class="card" style="text-align:center; padding:16px;"><div class="num" style="color:var(--pink); font-size:32px;">9×</div><div style="font-size:11px; color:var(--muted); margin-top:6px;">3Y LTV : CAC</div><div class="assumption-label" style="margin-top:6px;">Target</div></div>
+                <div class="card" style="text-align:center; padding:16px;"><div class="num" style="color:var(--mint); font-size:32px;">100</div><div style="font-size:11px; color:var(--muted); margin-top:6px;">Break-even colleges</div><div class="assumption-label" style="margin-top:6px;">Target</div></div>
+            </div>
+            <div class="card" style="max-width: 800px; text-align:center; padding:20px;">
+                <div style="display:flex; justify-content:center; gap:12px; align-items:center; font-size:14px; font-weight:600;">
+                    <span style="color:var(--cyan);">Validate</span>
+                    <span style="color:var(--muted);">→</span>
+                    <span style="color:var(--violet);">Prove campus liquidity</span>
+                    <span style="color:var(--muted);">→</span>
+                    <span style="color:var(--pink);">Convert institutions</span>
+                    <span style="color:var(--muted);">→</span>
+                    <span style="color:var(--mint);">Scale network</span>
+                </div>
+            </div>
+            <div style="margin-top:16px; display:flex; gap:12px;">
+                <div style="flex:1; padding:12px; background:rgba(54,224,160,.06); border:1px solid rgba(54,224,160,.2); border-radius:8px;">
+                    <div style="font-size:10px; font-weight:700; color:var(--mint); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:4px;">Actual / Built</div>
+                    <div style="font-size:12px; color:var(--muted);">Working prototype · 9 features · 8 demo users · Full data persistence</div>
+                </div>
+                <div style="flex:1; padding:12px; background:rgba(255,209,102,.06); border:1px solid rgba(255,209,102,.2); border-radius:8px;">
+                    <div style="font-size:10px; font-weight:700; color:var(--amber); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:4px;">Illustrative / Target</div>
+                    <div style="font-size:12px; color:var(--muted);">Pricing · CAC · Conversion · Revenue · Break-even · LTV</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 16: GO-TO-MARKET -->
+        <div class="slide" data-notes="Start where the network is strongest: campus. Phase 1: Student ambassadors and clubs. Phase 2: College partnerships. Phase 3: Institutional adoption and multi-campus expansion.">
+            <div class="ambient-3"></div>
+            <div class="badge badge-violet">Go-to-Market</div>
+            <div class="hero" style="margin-bottom: 24px; font-size: 34px;">Start where the network is strongest: campus.</div>
+            <div class="grid-3">
+                <div class="phase-card"><div class="phase-num" style="color:var(--violet);">01</div><div class="label" style="color:var(--violet); margin-bottom:10px;">Phase 1</div><h3 style="font-size:16px; margin-bottom:10px;">Campus Launch</h3><div style="display:flex; flex-direction:column; gap:6px;"><div style="font-size:12px; color:var(--muted);">• Student ambassadors</div><div style="font-size:12px; color:var(--muted);">• Campus clubs & communities</div><div style="font-size:12px; color:var(--muted);">• Skill exchange workshops</div><div style="font-size:12px; color:var(--muted);">• Referral programs</div></div></div>
+                <div class="phase-card"><div class="phase-num" style="color:var(--cyan);">02</div><div class="label" style="color:var(--cyan); margin-bottom:10px;">Phase 2</div><h3 style="font-size:16px; margin-bottom:10px;">College Partnerships</h3><div style="display:flex; flex-direction:column; gap:6px;"><div style="font-size:12px; color:var(--muted);">• College admin partnerships</div><div style="font-size:12px; color:var(--muted);">• Department communities</div><div style="font-size:12px; color:var(--muted);">• Inter-college challenges</div><div style="font-size:12px; color:var(--muted);">• Brand skill workshops</div></div></div>
+                <div class="phase-card"><div class="phase-num" style="color:var(--mint);">03</div><div class="label" style="color:var(--mint); margin-bottom:10px;">Phase 3</div><h3 style="font-size:16px; margin-bottom:10px;">Network Expansion</h3><div style="display:flex; flex-direction:column; gap:6px;"><div style="font-size:12px; color:var(--muted);">• Institutional adoption</div><div style="font-size:12px; color:var(--muted);">• City-level campus network</div><div style="font-size:12px; color:var(--muted);">• Multi-campus expansion</div><div style="font-size:12px; color:var(--muted);">• Pan-India campus network</div></div></div>
+            </div>
+        </div>
+
+        <!-- SLIDE 17: TRACTION / PROTOTYPE -->
+        <div class="slide" data-notes="We've built the first working version. 8 demo users, 9 core features, complete end-to-end flow with data persistence. This is a working MVP, not a mockup. Clearly labeled as prototype.">
+            <div class="ambient-2"></div>
+            <div class="badge badge-cyan">Traction</div>
+            <div class="hero" style="margin-bottom: 20px; font-size: 34px;">We built the first working version.</div>
+            <div class="grid-3" style="max-width: 780px; margin-bottom: 20px;">
+                <div class="card glow-cyan" style="text-align:center;"><div style="font-size:32px; font-weight:900; color:var(--cyan);">8</div><div class="label" style="margin-top:4px;">Demo Students</div><div class="actual-label">BUILT</div></div>
+                <div class="card glow-violet" style="text-align:center;"><div style="font-size:32px; font-weight:900; color:var(--violet);">9</div><div class="label" style="margin-top:4px;">Core Features</div><div class="actual-label">BUILT</div></div>
+                <div class="card" style="text-align:center;"><div style="font-size:32px; font-weight:900; color:var(--pink);">1</div><div class="label" style="margin-top:4px;">Working MVP</div><div class="actual-label">BUILT</div></div>
+            </div>
+            <div class="card" style="padding:12px 16px; max-width:780px; background:rgba(54,224,160,.05); border:1px solid rgba(54,224,160,.2);">
+                <div style="font-size:12px; color:var(--mint);">✓ Student Profiles · Skill Discovery · Smart Matching · Swap Requests · Chat · Scheduling · Credits · Reviews · Progress Tracking</div>
+            </div>
+            <div class="source" style="margin-top:8px;">Working prototype with full data persistence · Multi-user demo · Complete end-to-end flow · No fabricated metrics</div>
+        </div>
+
+        <!-- SLIDE 18: ROADMAP -->
+        <div class="slide" data-notes="Roadmap: Now — working MVP. Next — Firebase, auth, real campus communities. Then — mobile app, institutional tools. Future — multi-campus AI-powered network. Realistic and achievable.">
+            <div class="ambient-1"></div>
+            <div class="badge badge-mint">Roadmap</div>
+            <div class="hero" style="margin-bottom: 28px; font-size: 34px;">From prototype to campus infrastructure.</div>
+            <div style="max-width: 780px;">
+                <div class="timeline-item"><div class="timeline-dot" style="background:var(--mint);"></div><div style="flex:1;"><div class="card" style="border-left:3px solid var(--mint); padding:16px;"><div class="label" style="color:var(--mint); margin-bottom:4px;">Now</div><h3 style="font-size:15px; margin-bottom:2px;">Working MVP</h3><p style="font-size:12px; color:var(--muted);">Complete prototype · 9 features · 8 demo users · Full data persistence</p></div></div></div>
+                <div class="timeline-item"><div class="timeline-dot" style="background:var(--cyan);"></div><div style="flex:1;"><div class="card" style="border-left:3px solid var(--cyan); padding:16px;"><div class="label" style="color:var(--cyan); margin-bottom:4px;">Next</div><h3 style="font-size:15px; margin-bottom:2px;">Real-time Backend</h3><p style="font-size:12px; color:var(--muted);">Firebase integration · Authentication · Real campus communities</p></div></div></div>
+                <div class="timeline-item"><div class="timeline-dot" style="background:var(--violet);"></div><div style="flex:1;"><div class="card" style="border-left:3px solid var(--violet); padding:16px;"><div class="label" style="color:var(--violet); margin-bottom:4px;">Then</div><h3 style="font-size:15px; margin-bottom:2px;">Mobile + Institutional</h3><p style="font-size:12px; color:var(--muted);">Mobile app · Institution dashboard · Verified credentials</p></div></div></div>
+                <div class="timeline-item"><div class="timeline-dot" style="background:var(--pink);"></div><div style="flex:1;"><div class="card" style="border-left:3px solid var(--pink); padding:16px;"><div class="label" style="color:var(--pink); margin-bottom:4px;">Future</div><h3 style="font-size:15px; margin-bottom:2px;">Multi-campus Network</h3><p style="font-size:12px; color:var(--muted);">AI recommendations · Pan-India campus network · Ecosystem platform</p></div></div></div>
+            </div>
+        </div>
+
+        <!-- SLIDE 19: VISION -->
+        <div class="slide" style="justify-content:center; align-items:center; text-align:center;" data-notes="What if every student could teach something valuable? SkillSwap aims to build a culture where every student is both a learner and a mentor.">
+            <div class="ambient-3"></div>
+            <div class="badge badge-violet" style="margin-bottom: 20px;">Vision</div>
+            <div class="mega" style="margin-bottom: 20px; max-width: 760px; font-size: 60px;">What if every student could teach something <span class="gradient-text">valuable</span>?</div>
+            <div class="body" style="max-width: 560px; text-align:center; margin-bottom: 40px; font-size: 18px;">SkillSwap aims to build a culture where every student is both a learner and a mentor.</div>
+            <div style="display:flex; gap:36px; justify-content:center;">
+                <div class="vision-word"><div class="vw-icon icon-violet" style="font-size:18px;">📚</div><div style="font-weight:700; font-size:14px;">Learn</div></div>
+                <div class="vision-word"><div class="vw-icon icon-cyan" style="font-size:18px;">🎓</div><div style="font-weight:700; font-size:14px;">Teach</div></div>
+                <div class="vision-word"><div class="vw-icon icon-pink" style="font-size:18px;">🔄</div><div style="font-weight:700; font-size:14px;">Exchange</div></div>
+                <div class="vision-word"><div class="vw-icon icon-mint" style="font-size:18px;">📈</div><div style="font-weight:700; font-size:14px;">Grow</div></div>
+            </div>
+        </div>
+
+        <!-- SLIDE 20: CLOSING / ASK -->
+        <div class="slide" style="justify-content:center; align-items:center; text-align:center;" data-notes="Thank you. Let's unlock the skills inside every campus. We're looking to validate across more campuses, partner with colleges, and scale into a real campus network. Learn from peers. Teach what you know. Grow together.">
+            <div class="ambient-2"></div>
+            <div class="mega" style="margin-bottom: 14px; font-size: 56px;">Let's unlock the skills<br>already inside every campus.</div>
+            <div class="divider" style="margin: 0 auto 20px;"></div>
+            <div class="subtitle" style="margin-bottom: 28px; font-size: 16px;">SkillSwap — Your next skill is already on campus.</div>
+            <div class="card" style="max-width: 560px; margin: 0 auto; text-align: center; padding: 24px;">
+                <div class="label" style="margin-bottom: 14px;">What we're looking for</div>
+                <div style="display:flex; flex-direction:column; gap:8px; text-align:left; max-width: 380px; margin:0 auto;">
+                    <div style="display:flex; align-items:center; gap:8px; font-size:13px;"><span style="color:var(--violet);">→</span> Validate across more campuses</div>
+                    <div style="display:flex; align-items:center; gap:8px; font-size:13px;"><span style="color:var(--cyan);">→</span> Partner with colleges & student communities</div>
+                    <div style="display:flex; align-items:center; gap:8px; font-size:13px;"><span style="color:var(--mint);">→</span> Scale the MVP into a real campus network</div>
+                </div>
+            </div>
+            <div style="position:absolute; bottom:36px; left:0; right:0; text-align:center;">
+                <div style="font-size:16px; font-weight:600; color:var(--muted);">Learn from peers. <span style="color:var(--mint);">Teach what you know.</span> <span style="color:var(--violet);">Grow together.</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="nav-bar">
+        <button class="nav-btn" onclick="prevSlide()">←</button>
+        <div class="slide-counter" id="slideCounter">1 / 20</div>
+        <button class="nav-btn" onclick="nextSlide()">→</button>
+    </div>
+    <button class="notes-toggle" onclick="toggleNotes()">Notes (N)</button>
+    <div class="speaker-notes" id="speakerNotes"></div>
+
+    <script>
+        let current = 0;
+        const slides = document.querySelectorAll('.slide');
+        const total = slides.length;
+        const counter = document.getElementById('slideCounter');
+        const progressBar = document.getElementById('progressBar');
+        const notesEl = document.getElementById('speakerNotes');
+        let notesVisible = false;
+
+        function showSlide(i) {
+            slides.forEach(s => s.classList.remove('active'));
+            slides[i].classList.add('active');
+            counter.textContent = `${i + 1} / ${total}`;
+            progressBar.style.width = `${((i + 1) / total) * 100}%`;
+            notesEl.textContent = slides[i].getAttribute('data-notes') || '';
+        }
+
+        function nextSlide() { if (current < total - 1) { current++; showSlide(current); } }
+        function prevSlide() { if (current > 0) { current--; showSlide(current); } }
+        function toggleNotes() { notesVisible = !notesVisible; notesEl.classList.toggle('visible', notesVisible); }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+            else if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+            else if (e.key === 'n' || e.key === 'N') { toggleNotes(); }
+            else if (e.key === 'Home') { current = 0; showSlide(current); }
+            else if (e.key === 'End') { current = total - 1; showSlide(current); }
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>
