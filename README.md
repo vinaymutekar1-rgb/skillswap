@@ -31,6 +31,16 @@ Open **http://localhost:3000**.
 
 ---
 
+## Deploy to Vercel
+
+This project is configured as a **Hono + Vite** deployment. Vercel detects the default-exported Hono app in `src/index.ts`; Vite builds the React site into `public/`, which Vercel serves as static assets. API endpoints are routed by Hono under `/api/*`.
+
+Read [`VERCEL_DEPLOY.md`](./VERCEL_DEPLOY.md) for the exact Vercel settings and required Turso/libSQL database setup. The health check is `GET /api/health`.
+
+**Production database:** a remote Turso/libSQL database is required. Vercel serverless functions cannot use the local SQLite file as persistent production storage. Set `DATABASE_URL` and `DATABASE_AUTH_TOKEN` in Vercel and create the tables from `prisma/schema.prisma` before using app data.
+
+---
+
 ## What actually works
 
 | Feature | Behaviour |
@@ -106,9 +116,10 @@ Seeded history includes 36 completed sessions with reviews, so credits, ratings 
 │                               ProgressEntry, Notification, User
 ├── prisma.config.ts            Datasource URL (SQLite)
 ├── custom-routes.ts            ALL domain logic + the matching engine
-├── server.tsx                  Hono server (generated — see note below)
+├── server.tsx                  Local Bun API server (reuses src/index.ts)
 ├── shogo.config.json           Codegen config for routes/types/API client
 └── src/
+    ├── index.ts                Shared Hono app (Vercel entry point)
     ├── App.tsx                 Tab router + loading/error states
     ├── index.css               Design system (.ss-* classes)
     ├── lib/
@@ -164,7 +175,7 @@ All routes are mounted under `/api`.
 | `DELETE` | `/swap/skills/:id` | Remove a skill |
 | `POST` | `/swap/notifications/read` | Mark all read |
 
-**Why `/swap/*`?** `server.tsx` mounts generic CRUD routes for every Prisma model *before* the custom routes, and Hono matches in registration order. `/api/sessions`, `/api/messages` and `/api/reviews` are therefore already taken by generic handlers — the namespace keeps the domain-enforcing versions from being silently shadowed. This was a real bug caught during testing: `POST /api/sessions` was hitting the generic handler and returning a raw Prisma error instead of a validated 400.
+**Why `/swap/*`?** Domain-specific write operations use a dedicated namespace so their validation, credit rules, notifications, and rating calculations cannot be confused with generic model CRUD endpoints.
 
 ---
 
@@ -181,7 +192,7 @@ Midnight anime-campus aesthetic: deep navy base, aurora neon accents, glass surf
 
 ## Regenerating the API surface
 
-`server.tsx` and everything in `src/generated/` are produced by the Shogo SDK codegen from `prisma/schema.prisma`:
+The Shogo SDK can generate additional typed CRUD routes and API helpers from `prisma/schema.prisma`:
 
 ```bash
 bun run generate

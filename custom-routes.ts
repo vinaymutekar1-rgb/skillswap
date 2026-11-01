@@ -8,11 +8,8 @@
  * all writes are explicit, single-purpose endpoints that enforce the domain
  * rules (credits, ratings, notifications) server-side.
  *
- * Write routes live under `/swap/*` deliberately: `server.tsx` mounts the
- * generated CRUD routes for every Prisma model first, and Hono matches in
- * registration order — so `/api/sessions`, `/api/messages` and `/api/reviews`
- * are already taken by generic CRUD handlers. The namespace keeps our
- * domain-enforcing handlers from being shadowed by them.
+ * Write routes live under `/swap/*` to keep the domain-enforcing operations
+ * separate from any optional generated CRUD endpoints.
  */
 
 import { Hono } from 'hono'
@@ -383,8 +380,6 @@ async function bumpProgress(studentId: string, skill: string, hours: number) {
 // ---------------------------------------------------------------------------
 // Routes
 // ---------------------------------------------------------------------------
-
-app.get('/health', (c) => c.json({ ok: true, service: 'skillswap' }))
 
 /** Idempotent seed — safe to call repeatedly. */
 app.post('/seed', async (c) => {
